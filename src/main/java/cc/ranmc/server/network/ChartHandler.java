@@ -74,8 +74,12 @@ public class ChartHandler {
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
-        Main.getLogger().info("{}请求{}数据",
-                context.header("X-Real-IP"), type);
+
+        if (!context.ip().equals("localhost") ||
+                !context.ip().equals("127.0.0.1")) {
+            Main.getLogger().info("{}请求{}数据",
+                    context.header("X-Real-IP"), type);
+        }
         context.result(json.toString());
     }
 
