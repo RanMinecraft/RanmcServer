@@ -34,6 +34,7 @@ public class AddressHandler {
             String msg = context.queryParam(Prams.MSG);
             broadcast(msg);
             Main.getLogger().info("收到信件地址{}", msg);
+            json.put(Prams.MSG, "提交成功！我们将会尽快发出您的贺卡。");
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
