@@ -45,7 +45,7 @@ public class AddressHandler {
         try {
             OhMyEmail.subject("收到信件地址")
                     .from("【桃花源】")
-                    .to("xyfwdy@qq.com")
+                    .to("xyfwdy@gmail.com")
                     .text(msg)
                     .send();
         } catch (SendMailException e) {
