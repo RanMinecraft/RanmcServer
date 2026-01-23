@@ -20,21 +20,24 @@ public class AddressHandler {
         context.contentType(ContentType.APPLICATION_JSON);
         JSONObject json = new JSONObject();
 
-        if (context.queryParamMap().containsKey(Prams.MSG)) {
-            //String msg = URLDecoder.decode(map.get(Prams.MSG), StandardCharsets.UTF_8);
-            String ip = context.header("X-Real-IP");
-            long now = System.currentTimeMillis();
-            if (postMap.getOrDefault(ip, 0L) + (10L * 60 * 1000) >= now) {
-                json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
-                json.put(Prams.MSG, "你已提交过收信地址，如需再次提交，请10分钟后再试。");
-                context.result(json.toString());
-                return;
+        String body = context.body();
+        if (body.startsWith("{") || body.endsWith("}")) {
+            JSONObject object = JSONObject.parseObject(body);
+            if (object.containsKey(Prams.MSG)) {
+                String ip = context.header("X-Real-IP");
+                long now = System.currentTimeMillis();
+                if (postMap.getOrDefault(ip, 0L) + (10L * 60 * 1000) >= now) {
+                    json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
+                    json.put(Prams.MSG, "你已提交过收信地址，如需再次提交，请10分钟后再试。");
+                    context.result(json.toString());
+                    return;
+                }
+                postMap.put(ip, now);
+                String msg = object.getString(Prams.MSG);
+                broadcast(msg);
+                Main.getLogger().info("收到信件地址{} {}", ip, msg);
+                json.put(Prams.MSG, "提交成功！我们将会尽快发出您的贺卡。");
             }
-            postMap.put(ip, now);
-            String msg = context.queryParam(Prams.MSG);
-            broadcast(msg);
-            Main.getLogger().info("收到信件地址{}", msg);
-            json.put(Prams.MSG, "提交成功！我们将会尽快发出您的贺卡。");
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }

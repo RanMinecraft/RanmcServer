@@ -35,7 +35,7 @@ public class VerifyUtil {
                 return Code.SUCCESS;
             } else if (verifyBean.getTime() < new Date().getTime()) {
                 verifyMap.remove(email);
-                Main.getLogger().warn("等待确认超时：{}", email);
+                Main.getLogger().warn("等待确认超时:{}", email);
                 return Code.TIME_OUT;
             }
         } else {
