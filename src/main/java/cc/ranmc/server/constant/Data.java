@@ -4,7 +4,7 @@ import static cc.ranmc.server.util.ConfigUtil.CONFIG;
 
 public class Data {
     public static final String AUTHOR = "Ranica";
-    public static final String VERSION = "Release 7.3";
+    public static final String VERSION = "Release 7.4";
     public static final String WEB_SITE = "https://www.ranmc.cc/";
     public static final String VERIFY_HOST = "verify.ranmc.cc";
     public static final String BOT_CHECK_WEB_SITE = "https://" + VERIFY_HOST + "/check?key=";
@@ -16,6 +16,7 @@ public class Data {
     public static final String CHART_PATH = "/chart";
     public static final String BANLIST_PATH = "/banlist";
     public static final String CHECK_PATH = "/check";
+    public static final String ADDRESS_PATH = "/address";
     public static final String TOKEN = CONFIG.getString("token");
     public static final String EMAIL_PWD = CONFIG.getString("email");
 }

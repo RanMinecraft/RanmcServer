@@ -1,5 +1,6 @@
 package cc.ranmc.server;
 
+import cc.ranmc.server.network.AddressHandler;
 import cc.ranmc.server.network.BanlistHandler;
 import cc.ranmc.server.network.BaseHandler;
 import cc.ranmc.server.network.BroadcastHandler;
@@ -63,6 +64,7 @@ public final class Main {
                 .get(CHART_PATH, ChartHandler::handle)
                 .get(VERIFY_PATH, VerifyHandler::handle)
                 .get(CHECK_PATH, CheckHandler::handle)
+                .post(ADDRESS_PATH, AddressHandler::handle)
                 .start(PORT);
 
         getLogger().info("已成功运行在端口" + PORT);
