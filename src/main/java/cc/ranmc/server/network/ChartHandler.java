@@ -71,6 +71,9 @@ public class ChartHandler {
             json.put(Prams.CODE, Code.SUCCESS);
             json.put(Prams.DATA, MinecraftUtil.getServerStatusMap());
             json.put(Prams.TIME, MinecraftUtil.getLastCheckTime());
+        } else if ("online".equalsIgnoreCase(type)) {
+            json.put(Prams.CODE, Code.SUCCESS);
+            json.put(Prams.DATA, MinecraftUtil.getOnlineData());
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }

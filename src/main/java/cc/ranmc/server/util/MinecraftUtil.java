@@ -22,6 +22,8 @@ public class MinecraftUtil {
     @Getter
     private static long lastCheckTime = 0;
     private static boolean lastCheckStatus = true;
+    @Getter
+    private static JSONObject onlineData = new JSONObject();
 
     public static void updateServerStatus() {
         HttpUtil.post("https://dnsapi.cn/Record.List",
@@ -41,7 +43,7 @@ public class MinecraftUtil {
                                 && !name.contains("test")
                                 && !name.contains("city")) {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
-                            newServerStatusMap.put(serverName, isServerOnline(srv));
+                            newServerStatusMap.put(serverName, getServerData(srv) != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
                             serverSrvMap.put("ranmc.cc", srv);
@@ -50,7 +52,21 @@ public class MinecraftUtil {
                     });
 
                     String mainSrv = ConfigUtil.CONFIG.getString("srv");
-                    boolean mainServerOnline = isServerOnline(mainSrv);
+                    boolean mainServerOnline = getServerData(mainSrv) != null;
+
+                    // 更新服务器在线信息
+                    onlineData = new JSONObject();
+                    if (mainServerOnline) {
+                        JSONObject mainData = getServerData(mainSrv);
+                        String[] version = mainData.getJSONObject("version")
+                                .getString("name").split(" ");
+                        onlineData.put("version", version[version.length - 1]);
+                        onlineData.put("online", mainData.getJSONObject("players")
+                                .getIntValue("online", 0));
+                        onlineData.put("max", mainData.getJSONObject("players")
+                                .getIntValue("max", 0));
+                    }
+
                     newServerStatusMap.put("ranmc.cc", mainServerOnline);
                     mainSrv += ".";
                     if (mainServerOnline && !serverSrvMap.get("ranmc.cc").equals(mainSrv)) {
@@ -103,17 +119,20 @@ public class MinecraftUtil {
         return p.getProperty("key");
     }
 
-    private static boolean isServerOnline(String srvValue) {
+    private static JSONObject getServerData(String srvValue) {
         String[] srvValueSplit = srvValue.split(" ");
-        return isServerOnline(srvValueSplit[3], Integer.parseInt(srvValueSplit[2]));
+        return getServerData(srvValueSplit[3], Integer.parseInt(srvValueSplit[2]));
     }
 
-    private static boolean isServerOnline(String address, int port) {
+    private static JSONObject getServerData(String address, int port) {
+        JSONObject json = null;
         try {
-            new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(address).setPort(port));
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+            json = JSONObject.parseObject(
+                    new MinecraftPing().getPing(
+                            new MinecraftPingOptions()
+                                    .setHostname(address)
+                                    .setPort(port)));
+        } catch (Exception ignored) {}
+        return json;
     }
 }
