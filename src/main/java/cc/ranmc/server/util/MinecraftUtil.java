@@ -34,6 +34,7 @@ public class MinecraftUtil {
                         return;
                     }
                     serverSrvMap.clear();
+                    final JSONObject[] severData = new JSONObject[1];
                     Map<String,Boolean> newServerStatusMap = new TreeMap<>();
                     JSONObject.parseObject(body).getJSONArray("records").forEach(record -> {
                         JSONObject json = JSONObject.parseObject(record.toString());
@@ -43,7 +44,9 @@ public class MinecraftUtil {
                                 && !name.contains("test")
                                 && !name.contains("city")) {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
-                            newServerStatusMap.put(serverName, getServerData(srv) != null);
+                            JSONObject obj = getServerData(srv);
+                            if (obj != null) severData[0] = obj;
+                            newServerStatusMap.put(serverName, severData[0] != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
                             serverSrvMap.put("ranmc.cc", srv);
@@ -52,18 +55,18 @@ public class MinecraftUtil {
                     });
 
                     String mainSrv = ConfigUtil.CONFIG.getString("srv");
-                    boolean mainServerOnline = getServerData(mainSrv) != null;
-
+                    JSONObject obj = getServerData(mainSrv);
+                    boolean mainServerOnline = obj != null;
+                    if (obj != null) severData[0] = obj;
                     // 更新服务器在线信息
                     onlineData = new JSONObject();
-                    if (mainServerOnline) {
-                        JSONObject mainData = getServerData(mainSrv);
-                        String[] version = mainData.getJSONObject("version")
+                    if (severData[0] != null) {
+                        String[] version = severData[0].getJSONObject("version")
                                 .getString("name").split(" ");
                         onlineData.put("version", version[version.length - 1]);
-                        onlineData.put("online", mainData.getJSONObject("players")
+                        onlineData.put("online", severData[0].getJSONObject("players")
                                 .getIntValue("online", 0));
-                        onlineData.put("max", mainData.getJSONObject("players")
+                        onlineData.put("max", severData[0].getJSONObject("players")
                                 .getIntValue("max", 0));
                     }
 
