@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static cc.ranmc.server.constant.Data.ADDRESS_PATH;
+import static cc.ranmc.server.constant.Data.ANY_PATH;
 import static cc.ranmc.server.constant.Data.AUTHOR;
 import static cc.ranmc.server.constant.Data.BANLIST_PATH;
 import static cc.ranmc.server.constant.Data.BASE_PATH;
@@ -64,7 +65,7 @@ public final class Main {
                 .get(CHART_PATH, ChartHandler::handle)
                 .get(VERIFY_PATH, VerifyHandler::handle)
                 .post(ADDRESS_PATH, AddressHandler::handle)
-                .options(ADDRESS_PATH, OptionsHandler::handle)
+                .options(ANY_PATH, OptionsHandler::handle)
                 .start(PORT);
 
         getLogger().info("已成功运行在端口" + PORT);

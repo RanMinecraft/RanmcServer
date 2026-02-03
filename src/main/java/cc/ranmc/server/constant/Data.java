@@ -9,6 +9,7 @@ public class Data {
     public static final String VERIFY_WEB_SITE = "https://www.ranmc.cc/verify.html?key=";
     public static final int PORT = 2263;
     public static final String BASE_PATH = "/";
+    public static final String ANY_PATH = "/*";
     public static final String VERIFY_PATH = "/verify";
     public static final String BROADCAST_PATH = "/broadcast";
     public static final String CHART_PATH = "/chart";

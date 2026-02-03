@@ -31,7 +31,7 @@ public class BanlistHandler {
 
         context.contentType(ContentType.APPLICATION_JSON);
         Main.getLogger().info("{}请求封禁列表",
-                context.header("X-Real-IP"));
+                context.header("X-Forwarded-For"));
 
         JSONObject json = new JSONObject();
 

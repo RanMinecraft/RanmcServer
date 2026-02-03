@@ -75,9 +75,9 @@ public class ChartHandler {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
 
-        if (context.header("X-Real-IP") != null) {
+        if (context.header("X-Forwarded-For") != null) {
             Main.getLogger().info("{}请求{}数据",
-                    context.header("X-Real-IP"), type);
+                    context.header("X-Forwarded-For"), type);
         }
         context.result(json.toString());
     }

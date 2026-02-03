@@ -26,7 +26,7 @@ public class AddressHandler {
         if (body.startsWith("{") || body.endsWith("}")) {
             JSONObject object = JSONObject.parseObject(body);
             if (object.containsKey(Prams.MSG)) {
-                String ip = context.header("X-Real-IP");
+                String ip = context.header("X-Forwarded-For");
                 long now = System.currentTimeMillis();
                 if (postMap.getOrDefault(ip, 0L) + (10L * 60 * 1000) >= now) {
                     json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
