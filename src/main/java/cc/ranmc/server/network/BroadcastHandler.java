@@ -4,6 +4,7 @@ import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Data;
 import cc.ranmc.server.constant.Prams;
+import cc.ranmc.server.util.CrossUtil;
 import com.alibaba.fastjson2.JSONObject;
 import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
@@ -13,6 +14,7 @@ import io.javalin.http.Context;
 public class BroadcastHandler {
 
     public static void handle(Context context) {
+        CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
         JSONObject json = new JSONObject();
         if (!context.queryParamMap().containsKey(Prams.TOKEN) ||

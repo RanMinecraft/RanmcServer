@@ -3,6 +3,7 @@ package cc.ranmc.server.network;
 import cc.ranmc.server.bean.VerifyBean;
 import cc.ranmc.server.constant.Data;
 import cc.ranmc.server.constant.Prams;
+import cc.ranmc.server.util.CrossUtil;
 import cc.ranmc.server.util.VerifyUtil;
 import com.alibaba.fastjson2.JSONObject;
 import io.javalin.http.ContentType;
@@ -15,14 +16,7 @@ import static cc.ranmc.server.constant.Code.BAD_REQUEST;
 public class VerifyHandler {
 
     public static void handle(Context context) {
-
-        // 允许跨域
-        context.header("Access-Control-Allow-Origin", "*");
-        context.header("Access-Control-Allow-Methods", "*");
-        context.header("Access-Control-Allow-Headers", "*");
-        context.header("Access-Control-Max-Age", "*");
-        context.header("Access-Control-Allow-Credentials", "true");
-
+        CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
 
         if (context.queryParamMap().containsKey(Prams.TOKEN) &&

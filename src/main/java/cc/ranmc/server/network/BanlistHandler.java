@@ -4,6 +4,7 @@ import cc.ranmc.constant.SQLKey;
 import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
+import cc.ranmc.server.util.CrossUtil;
 import cc.ranmc.sql.SQLBase;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -26,13 +27,7 @@ public class BanlistHandler {
     private static List<JSONObject> banlist;
 
     public static void handle(Context context) {
-
-        // 允许跨域
-        context.header("Access-Control-Allow-Origin", "*");
-        context.header("Access-Control-Allow-Methods", "*");
-        context.header("Access-Control-Allow-Headers", "*");
-        context.header("Access-Control-Max-Age", "*");
-        context.header("Access-Control-Allow-Credentials", "true");
+        CrossUtil.allow(context);
 
         context.contentType(ContentType.APPLICATION_JSON);
         Main.getLogger().info("{}请求封禁列表",

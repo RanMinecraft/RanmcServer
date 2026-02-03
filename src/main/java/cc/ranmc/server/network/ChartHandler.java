@@ -4,6 +4,7 @@ import cc.ranmc.constant.SQLKey;
 import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
+import cc.ranmc.server.util.CrossUtil;
 import cc.ranmc.server.util.MinecraftUtil;
 import cc.ranmc.sql.SQLBase;
 import cc.ranmc.sql.SQLFilter;
@@ -38,11 +39,7 @@ public class ChartHandler {
 
     public static void handle(Context context) {
         // 允许跨域
-        context.header("Access-Control-Allow-Origin", "*");
-        context.header("Access-Control-Allow-Methods", "*");
-        context.header("Access-Control-Allow-Headers", "*");
-        context.header("Access-Control-Max-Age", "*");
-        context.header("Access-Control-Allow-Credentials", "true");
+        CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
 
         JSONObject json = new JSONObject();

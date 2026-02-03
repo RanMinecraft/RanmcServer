@@ -5,7 +5,7 @@ import cc.ranmc.server.network.BanlistHandler;
 import cc.ranmc.server.network.BaseHandler;
 import cc.ranmc.server.network.BroadcastHandler;
 import cc.ranmc.server.network.ChartHandler;
-import cc.ranmc.server.network.CheckHandler;
+import cc.ranmc.server.network.OptionsHandler;
 import cc.ranmc.server.network.VerifyHandler;
 import cc.ranmc.server.util.ConfigUtil;
 import cc.ranmc.server.util.MinecraftUtil;
@@ -25,7 +25,6 @@ import static cc.ranmc.server.constant.Data.BANLIST_PATH;
 import static cc.ranmc.server.constant.Data.BASE_PATH;
 import static cc.ranmc.server.constant.Data.BROADCAST_PATH;
 import static cc.ranmc.server.constant.Data.CHART_PATH;
-import static cc.ranmc.server.constant.Data.CHECK_PATH;
 import static cc.ranmc.server.constant.Data.EMAIL_PWD;
 import static cc.ranmc.server.constant.Data.PORT;
 import static cc.ranmc.server.constant.Data.VERIFY_PATH;
@@ -64,8 +63,8 @@ public final class Main {
                 .get(BROADCAST_PATH, BroadcastHandler::handle)
                 .get(CHART_PATH, ChartHandler::handle)
                 .get(VERIFY_PATH, VerifyHandler::handle)
-                .get(CHECK_PATH, CheckHandler::handle)
                 .post(ADDRESS_PATH, AddressHandler::handle)
+                .options(ADDRESS_PATH, OptionsHandler::handle)
                 .start(PORT);
 
         getLogger().info("已成功运行在端口" + PORT);

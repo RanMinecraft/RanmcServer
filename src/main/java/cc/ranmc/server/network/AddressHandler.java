@@ -3,6 +3,7 @@ package cc.ranmc.server.network;
 import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
+import cc.ranmc.server.util.CrossUtil;
 import com.alibaba.fastjson2.JSONObject;
 import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
@@ -17,6 +18,7 @@ public class AddressHandler {
     private static final Map<String,Long> postMap = new HashMap<>();
 
     public static void handle(Context context) {
+        CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
         JSONObject json = new JSONObject();
 
