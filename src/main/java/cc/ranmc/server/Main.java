@@ -1,6 +1,5 @@
 package cc.ranmc.server;
 
-import cc.ranmc.server.network.AddressHandler;
 import cc.ranmc.server.network.BanlistHandler;
 import cc.ranmc.server.network.BaseHandler;
 import cc.ranmc.server.network.BroadcastHandler;
@@ -19,7 +18,6 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static cc.ranmc.server.constant.Data.ADDRESS_PATH;
 import static cc.ranmc.server.constant.Data.ANY_PATH;
 import static cc.ranmc.server.constant.Data.AUTHOR;
 import static cc.ranmc.server.constant.Data.BANLIST_PATH;
@@ -64,7 +62,6 @@ public final class Main {
                 .get(BROADCAST_PATH, BroadcastHandler::handle)
                 .get(CHART_PATH, ChartHandler::handle)
                 .get(VERIFY_PATH, VerifyHandler::handle)
-                .post(ADDRESS_PATH, AddressHandler::handle)
                 .options(ANY_PATH, OptionsHandler::handle)
                 .start(PORT);
 
