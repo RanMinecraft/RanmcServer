@@ -47,11 +47,9 @@ public class MinecraftUtil {
                                 && !name.contains("test")
                                 && !name.contains("city")) {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
-                            long startTime = System.currentTimeMillis();
                             JSONObject obj = getServerData(srv);
-                            long endTime = System.currentTimeMillis();
                             if (obj != null) severData[0] = obj;
-                            newServerDelayMap.put(serverName, obj == null ? 0 : (endTime - startTime));
+                            newServerDelayMap.put(serverName, obj == null ? 0 : obj.getLongValue("delay", 0L));
                             newServerStatusMap.put(serverName, severData[0] != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
@@ -61,10 +59,8 @@ public class MinecraftUtil {
                     });
 
                     String mainSrv = ConfigUtil.CONFIG.getString("srv");
-                    long startTime = System.currentTimeMillis();
                     JSONObject obj = getServerData(mainSrv);
-                    long endTime = System.currentTimeMillis();
-                    newServerDelayMap.put("ranmc.cc", obj == null ? 0 : (endTime - startTime));
+                    newServerDelayMap.put("ranmc.cc", obj == null ? 0 : obj.getLongValue("delay", 0L));
                     boolean mainServerOnline = obj != null;
                     if (obj != null) severData[0] = obj;
                     // 更新服务器在线信息
@@ -132,14 +128,6 @@ public class MinecraftUtil {
         return p.getProperty("key");
     }
 
-    private static long getServerDelay(String srvValue) {
-        long start = System.currentTimeMillis();
-        JSONObject json = getServerData(srvValue);
-        long now = System.currentTimeMillis();
-        if (json == null) return 0;
-        return now - start;
-    }
-
     private static JSONObject getServerData(String srvValue) {
         String[] srvValueSplit = srvValue.split(" ");
         return getServerData(srvValueSplit[3], Integer.parseInt(srvValueSplit[2]));
@@ -147,13 +135,17 @@ public class MinecraftUtil {
 
     private static JSONObject getServerData(String address, int port) {
         JSONObject json = null;
+        long startTime = 0, endTime = 0;
         try {
+            startTime = System.currentTimeMillis();
             json = JSONObject.parseObject(
                     new MinecraftPing().getPing(
                             new MinecraftPingOptions()
                                     .setHostname(address)
                                     .setPort(port)));
+            endTime = System.currentTimeMillis();
         } catch (Exception ignored) {}
+        if (json != null) json.put("delay", (endTime - startTime));
         return json;
     }
 }
