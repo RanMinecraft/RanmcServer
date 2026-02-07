@@ -17,6 +17,8 @@ public class MinecraftUtil {
 
     @Getter
     private static Map<String,Boolean> serverStatusMap = new TreeMap<>();
+    @Getter
+    private static Map<String,Long> serverDelayMap = new TreeMap<>();
     private static final Map<String,String> serverSrvMap = new TreeMap<>();
     private static long recordId = 0;
     @Getter
@@ -36,6 +38,7 @@ public class MinecraftUtil {
                     serverSrvMap.clear();
                     final JSONObject[] severData = new JSONObject[1];
                     Map<String,Boolean> newServerStatusMap = new TreeMap<>();
+                    Map<String,Long> newServerDelayMap = new TreeMap<>();
                     JSONObject.parseObject(body).getJSONArray("records").forEach(record -> {
                         JSONObject json = JSONObject.parseObject(record.toString());
                         String name = json.getString("name");
@@ -44,8 +47,11 @@ public class MinecraftUtil {
                                 && !name.contains("test")
                                 && !name.contains("city")) {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
+                            long startTime = System.currentTimeMillis();
                             JSONObject obj = getServerData(srv);
+                            long endTime = System.currentTimeMillis();
                             if (obj != null) severData[0] = obj;
+                            newServerDelayMap.put(serverName, obj == null ? 0 : (endTime - startTime));
                             newServerStatusMap.put(serverName, severData[0] != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
@@ -55,7 +61,10 @@ public class MinecraftUtil {
                     });
 
                     String mainSrv = ConfigUtil.CONFIG.getString("srv");
+                    long startTime = System.currentTimeMillis();
                     JSONObject obj = getServerData(mainSrv);
+                    long endTime = System.currentTimeMillis();
+                    newServerDelayMap.put("ranmc.cc", obj == null ? 0 : (endTime - startTime));
                     boolean mainServerOnline = obj != null;
                     if (obj != null) severData[0] = obj;
                     // 更新服务器在线信息
@@ -95,6 +104,7 @@ public class MinecraftUtil {
                     lastCheckStatus = mainServerOnline;
                     lastCheckTime = System.currentTimeMillis();
                     serverStatusMap = newServerStatusMap;
+                    serverDelayMap = newServerDelayMap;
                 });
     }
 
@@ -120,6 +130,14 @@ public class MinecraftUtil {
             throw new RuntimeException(e);
         }
         return p.getProperty("key");
+    }
+
+    private static long getServerDelay(String srvValue) {
+        long start = System.currentTimeMillis();
+        JSONObject json = getServerData(srvValue);
+        long now = System.currentTimeMillis();
+        if (json == null) return 0;
+        return now - start;
     }
 
     private static JSONObject getServerData(String srvValue) {
