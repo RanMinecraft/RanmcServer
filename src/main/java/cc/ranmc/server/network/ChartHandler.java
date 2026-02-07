@@ -66,12 +66,13 @@ public class ChartHandler {
         } else if ("status".equalsIgnoreCase(type)) {
             updateSeasonData();
             json.put(Prams.CODE, Code.SUCCESS);
-            JSONObject data = new JSONObject();
+            JSONArray data = new JSONArray();
             for (String key : MinecraftUtil.getServerStatusMap().keySet()) {
                 JSONObject obj = new JSONObject();
+                obj.put("host", key);
                 obj.put("status", MinecraftUtil.getServerStatusMap().get(key));
                 obj.put("delay", MinecraftUtil.getServerDelayMap().get(key));
-                data.put(key, obj);
+                data.add(obj);
             }
             json.put(Prams.DATA, data);
             json.put(Prams.TIME, MinecraftUtil.getLastCheckTime());
