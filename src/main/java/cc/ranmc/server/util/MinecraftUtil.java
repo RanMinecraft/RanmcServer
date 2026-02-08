@@ -137,13 +137,13 @@ public class MinecraftUtil {
         JSONObject json = null;
         long startTime = 0, endTime = 0;
         try {
+            MinecraftPingOptions options = new MinecraftPingOptions()
+                    .setHostname(address)
+                    .setPort(port);
             startTime = System.currentTimeMillis();
-            json = JSONObject.parseObject(
-                    new MinecraftPing().getPing(
-                            new MinecraftPingOptions()
-                                    .setHostname(address)
-                                    .setPort(port)));
+            String result = new MinecraftPing().getPing(options);
             endTime = System.currentTimeMillis();
+            json = JSONObject.parseObject(result);
         } catch (Exception ignored) {}
         if (json != null) json.put("delay", (endTime - startTime));
         return json;

@@ -38,17 +38,6 @@ import java.net.Socket;
 public class MinecraftPing {
 
     /**
-     * Fetches a {@link MinecraftPingReply} for the supplied hostname.
-     * <b>Assumed timeout of 2s and port of 25565.</b>
-     * 
-     * @param hostname - a valid String hostname
-     * @return {@link MinecraftPingReply}
-     */
-    public String getPing(final String hostname) throws IOException {
-        return this.getPing(new MinecraftPingOptions().setHostname(hostname));
-    }
-
-    /**
      * Fetches a {@link MinecraftPingReply} for the supplied options.
      * 
      * @param options - a filled instance of {@link MinecraftPingOptions}
