@@ -43,7 +43,7 @@ public class MinecraftPing {
      * @param options - a filled instance of {@link MinecraftPingOptions}
      * @return {@link MinecraftPingReply}
      */
-    public String getPing(final MinecraftPingOptions options) throws IOException {
+    public static String getPing(final MinecraftPingOptions options) throws IOException {
         MinecraftPingUtil.validate(options.getHostname(), "Hostname cannot be null.");
         MinecraftPingUtil.validate(options.getPort(), "Port cannot be null.");
 

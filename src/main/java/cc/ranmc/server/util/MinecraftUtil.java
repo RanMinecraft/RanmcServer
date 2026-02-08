@@ -141,7 +141,7 @@ public class MinecraftUtil {
                     .setHostname(address)
                     .setPort(port);
             startTime = System.currentTimeMillis();
-            String result = new MinecraftPing().getPing(options);
+            String result = MinecraftPing.getPing(options);
             endTime = System.currentTimeMillis();
             json = JSONObject.parseObject(result);
         } catch (Exception ignored) {}
