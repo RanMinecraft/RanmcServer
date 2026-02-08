@@ -71,7 +71,7 @@ public class ChartHandler {
                 JSONObject obj = new JSONObject();
                 obj.put("host", key);
                 obj.put("status", MinecraftUtil.getServerStatusMap().get(key));
-                obj.put("delay", MinecraftUtil.getServerDelayMap().get(key));
+                obj.put("latency", MinecraftUtil.getServerLatencyMap().get(key));
                 data.add(obj);
             }
             json.put(Prams.DATA, data);
@@ -147,10 +147,10 @@ public class ChartHandler {
         tpsRows.clear();
         for (SQLRow row : tpsList) {
             JSONObject obj = new JSONObject();
-            obj.put(SQLKey.DATE, row.getString(SQLKey.DATE));
-            obj.put(SQLKey.TIME, row.getString(SQLKey.TIME));
-            obj.put(SQLKey.PLAYER, row.getString(SQLKey.PLAYER));
-            obj.put(SQLKey.VALUE, row.getString(SQLKey.VALUE));
+            obj.put(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
+            obj.put(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
+            obj.put(SQLKey.PLAYER.toLowerCase(), row.getString(SQLKey.PLAYER));
+            obj.put(SQLKey.VALUE.toLowerCase(), row.getString(SQLKey.VALUE));
             tpsRows.add(obj);
         }
     }
@@ -209,7 +209,6 @@ public class ChartHandler {
         if (point >= 2000) text = "钻石Ⅱ";
         if (point >= 2100) text = "钻石Ⅰ";
         if (point >= 2200) text = "翡翠";
-        if (point < 1000) return text;
         return text;
     }
 }

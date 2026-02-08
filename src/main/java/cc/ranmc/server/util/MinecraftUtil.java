@@ -18,7 +18,7 @@ public class MinecraftUtil {
     @Getter
     private static Map<String,Boolean> serverStatusMap = new TreeMap<>();
     @Getter
-    private static Map<String,Long> serverDelayMap = new TreeMap<>();
+    private static Map<String,Long> serverLatencyMap = new TreeMap<>();
     private static final Map<String,String> serverSrvMap = new TreeMap<>();
     private static long recordId = 0;
     @Getter
@@ -38,7 +38,7 @@ public class MinecraftUtil {
                     serverSrvMap.clear();
                     final JSONObject[] severData = new JSONObject[1];
                     Map<String,Boolean> newServerStatusMap = new TreeMap<>();
-                    Map<String,Long> newServerDelayMap = new TreeMap<>();
+                    Map<String,Long> newServerLatencyMap = new TreeMap<>();
                     JSONObject.parseObject(body).getJSONArray("records").forEach(record -> {
                         JSONObject json = JSONObject.parseObject(record.toString());
                         String name = json.getString("name");
@@ -49,7 +49,7 @@ public class MinecraftUtil {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
                             JSONObject obj = getServerData(srv);
                             if (obj != null) severData[0] = obj;
-                            newServerDelayMap.put(serverName, obj == null ? 0 : obj.getLongValue("delay", 0L));
+                            newServerLatencyMap.put(serverName, obj == null ? 0 : obj.getLongValue("latency", 0L));
                             newServerStatusMap.put(serverName, severData[0] != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
@@ -60,7 +60,7 @@ public class MinecraftUtil {
 
                     String mainSrv = ConfigUtil.CONFIG.getString("srv");
                     JSONObject obj = getServerData(mainSrv);
-                    newServerDelayMap.put("ranmc.cc", obj == null ? 0 : obj.getLongValue("delay", 0L));
+                    newServerLatencyMap.put("ranmc.cc", obj == null ? 0 : obj.getLongValue("latency", 0L));
                     boolean mainServerOnline = obj != null;
                     if (obj != null) severData[0] = obj;
                     // 更新服务器在线信息
@@ -100,7 +100,7 @@ public class MinecraftUtil {
                     lastCheckStatus = mainServerOnline;
                     lastCheckTime = System.currentTimeMillis();
                     serverStatusMap = newServerStatusMap;
-                    serverDelayMap = newServerDelayMap;
+                    serverLatencyMap = newServerLatencyMap;
                 });
     }
 
@@ -134,18 +134,11 @@ public class MinecraftUtil {
     }
 
     private static JSONObject getServerData(String address, int port) {
-        JSONObject json = null;
-        long startTime = 0, endTime = 0;
-        try {
-            MinecraftPingOptions options = new MinecraftPingOptions()
+         try {
+            return MinecraftPing.getPing(new MinecraftPingOptions()
                     .setHostname(address)
-                    .setPort(port);
-            startTime = System.currentTimeMillis();
-            String result = MinecraftPing.getPing(options);
-            endTime = System.currentTimeMillis();
-            json = JSONObject.parseObject(result);
+                    .setPort(port));
         } catch (Exception ignored) {}
-        if (json != null) json.put("delay", (endTime - startTime));
-        return json;
+        return null;
     }
 }

@@ -28,6 +28,8 @@
  */
 package cc.ranmc.server.minecraft;
 
+import com.alibaba.fastjson2.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,7 +45,7 @@ public class MinecraftPing {
      * @param options - a filled instance of {@link MinecraftPingOptions}
      * @return {@link MinecraftPingReply}
      */
-    public static String getPing(final MinecraftPingOptions options) throws IOException {
+    public static JSONObject getPing(final MinecraftPingOptions options) throws IOException {
         MinecraftPingUtil.validate(options.getHostname(), "Hostname cannot be null.");
         MinecraftPingUtil.validate(options.getPort(), "Port cannot be null.");
 
@@ -87,18 +89,24 @@ public class MinecraftPing {
 
         byte[] data = new byte[length];
         in.readFully(data);
-        String json = new String(data, options.getCharset());
+        JSONObject json = JSONObject.parseObject(new String(data, options.getCharset()));
 
         //> Ping
+        long startTime = System.currentTimeMillis();
 
         out.writeByte(0x09); // Size of packet
         out.writeByte(MinecraftPingUtil.PACKET_PING);
         out.writeLong(System.currentTimeMillis());
 
-        //< Ping
-
         MinecraftPingUtil.readVarInt(in); // Size
         id = MinecraftPingUtil.readVarInt(in);
+
+        long endTime = System.currentTimeMillis();
+        long latency = endTime - startTime;
+        if (json != null) {
+            json.put("latency", latency);
+        }
+
         MinecraftPingUtil.io(id == -1, "Server prematurely ended stream.");
         MinecraftPingUtil.io(id != MinecraftPingUtil.PACKET_PING, "Server returned invalid packet.");
 
