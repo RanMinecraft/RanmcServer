@@ -140,7 +140,7 @@ public class ChartHandler {
         long now = System.currentTimeMillis();
         if (tpsLastUpdate + (30 * 60 * 1000) > now) return;
         tpsLastUpdate = now;
-        List<SQLRow> tpsList = tpsData.selectList("TPS",
+        List<SQLRow> tpsList = tpsData.selectList(SQLKey.TPS.toUpperCase(),
                 new SQLFilter()
                         .order("CAST(ID AS INT) DESC")
                         .limit(68));
@@ -150,7 +150,8 @@ public class ChartHandler {
             obj.put(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
             obj.put(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
             obj.put(SQLKey.PLAYER.toLowerCase(), row.getString(SQLKey.PLAYER));
-            obj.put(SQLKey.VALUE.toLowerCase(), row.getString(SQLKey.VALUE));
+            obj.put(SQLKey.TPS.toLowerCase(), row.getString(SQLKey.TPS));
+            obj.put(SQLKey.MSPT.toLowerCase(), row.getString(SQLKey.MSPT));
             tpsRows.add(obj);
         }
     }
