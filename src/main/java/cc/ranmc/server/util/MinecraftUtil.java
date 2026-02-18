@@ -50,7 +50,7 @@ public class MinecraftUtil {
                             JSONObject obj = getServerData(srv);
                             if (obj != null) severData[0] = obj;
                             newServerLatencyMap.put(serverName, obj == null ? 0 : obj.getLongValue("latency", 0L));
-                            newServerStatusMap.put(serverName, severData[0] != null);
+                            newServerStatusMap.put(serverName, obj != null);
                             serverSrvMap.put(serverName, srv);
                         } else if (name.equals("_minecraft._tcp")) {
                             serverSrvMap.put("ranmc.cc", srv);
