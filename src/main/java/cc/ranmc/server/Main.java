@@ -15,6 +15,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -69,12 +70,14 @@ public final class Main {
 
         getLogger().info("已成功运行在端口" + PORT);
 
-        AIUtil.chat();
-
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 MinecraftUtil.updateServerStatus();
+                LocalDateTime now = LocalDateTime.now();
+                if (now.getHour() == 23 && now.getMinute() == 59) {
+                    AIUtil.chat();
+                }
             }
         }, 0, 1000 * 60);
     }
