@@ -16,20 +16,20 @@ public class RecallUtil {
     public static void load() {
         try {
             File file = new File(System.getProperty("user.dir") + "/recall.txt");
-            String context = FileUtils.fileRead(file, "utf8");
-            if (context == null) context = "";
-            RECALL_LIST.addAll(Arrays.asList(context.split("\n")));
+            String content = FileUtils.fileRead(file, "utf8");
+            if (content == null) content = "";
+            RECALL_LIST.addAll(Arrays.asList(content.split("\n")));
             Main.getLogger().error("载入屏蔽词 {} 条", RECALL_LIST.size());
         } catch (IOException e) {
             Main.getLogger().error("载入屏蔽词失败 {}", e.getMessage());
         }
     }
 
-    public static String replace(String context) {
-        if (context == null || context.isEmpty() || RECALL_LIST.isEmpty()) {
-            return context;
+    public static String replace(String content) {
+        if (content == null || content.isEmpty() || RECALL_LIST.isEmpty()) {
+            return content;
         }
-        String result = context;
+        String result = content;
         for (String word : RECALL_LIST) {
             if (word == null || word.isEmpty()) continue;
             String stars = "*".repeat(word.length());

@@ -17,6 +17,7 @@ import static cc.ranmc.server.constant.Data.AI_API_KEY;
 import static cc.ranmc.server.constant.Data.AI_BASE_URL;
 import static cc.ranmc.server.constant.Data.AI_MODEL;
 import static cc.ranmc.server.constant.Data.LOG_SQL;
+import static cc.ranmc.server.util.MarkdownUtil.mdToHtml;
 
 public class AIUtil {
 
@@ -113,7 +114,7 @@ public class AIUtil {
                                             OhMyEmail.subject("服务器聊天 AI 总结")
                                                     .from("【桃花源】")
                                                     .to("xyfwdy@gmail.com")
-                                                    .text(content)
+                                                    .html(mdToHtml(content))
                                                     .send();
                                             Main.getLogger().info("发送 AI 总结邮件成功");
                                         } catch (SendMailException e) {
