@@ -73,11 +73,11 @@ public final class Main {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                MinecraftUtil.updateServerStatus();
                 LocalDateTime now = LocalDateTime.now();
                 if (now.getHour() == 23 && now.getMinute() == 59) {
                     AIUtil.chat();
                 }
+                MinecraftUtil.updateServerStatus();
             }
         }, 0, 1000 * 60);
     }
