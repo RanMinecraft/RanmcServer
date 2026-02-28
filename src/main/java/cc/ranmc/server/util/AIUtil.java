@@ -5,6 +5,8 @@ import cc.ranmc.server.Main;
 import cc.ranmc.sql.SQLFilter;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import io.github.biezhi.ome.OhMyEmail;
+import io.github.biezhi.ome.SendMailException;
 import kong.unirest.core.Unirest;
 
 import java.time.LocalDateTime;
@@ -107,7 +109,7 @@ public class AIUtil {
                                     String content = message.getString("content");
                                     if (content != null) {
                                         Main.getLogger().info("请求 AI 总结成功\n{}", content);
-                                        /*try {
+                                        try {
                                             OhMyEmail.subject("服务器聊天 AI 总结")
                                                     .from("【桃花源】")
                                                     .to("xyfwdy@gmail.com")
@@ -117,7 +119,7 @@ public class AIUtil {
                                         } catch (SendMailException e) {
                                             Main.getLogger().error(e.getMessage());
                                             Main.getLogger().error("发送 AI 总结邮件失败");
-                                        }*/
+                                        }
                                         return;
                                     }
                                 }
