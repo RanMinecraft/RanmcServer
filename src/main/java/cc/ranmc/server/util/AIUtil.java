@@ -117,8 +117,7 @@ public class AIUtil {
                                                     .send();
                                             Main.getLogger().info("发送 AI 总结邮件成功");
                                         } catch (SendMailException e) {
-                                            Main.getLogger().error(e.getMessage());
-                                            Main.getLogger().error("发送 AI 总结邮件失败");
+                                            Main.getLogger().error("发送 AI 总结邮件失败 {}", e.getMessage());
                                         }
                                         return;
                                     }
