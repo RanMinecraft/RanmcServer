@@ -6,7 +6,6 @@ import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
 import cc.ranmc.server.util.CrossUtil;
 import cc.ranmc.server.util.MinecraftUtil;
-import cc.ranmc.sql.SQLBase;
 import cc.ranmc.sql.SQLFilter;
 import cc.ranmc.sql.SQLRow;
 import com.alibaba.fastjson2.JSONArray;
@@ -25,11 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cc.ranmc.server.constant.Data.DATA_SQL;
+import static cc.ranmc.server.constant.Data.LOG_SQL;
 import static cc.ranmc.server.util.ConfigUtil.CONFIG;
 
 public class ChartHandler {
-    private static final SQLBase pvpData = new SQLBase(CONFIG.getString("sqlite"));
-    private static final SQLBase tpsData = new SQLBase(CONFIG.getString("tps"));
     private static long seasonLastUpdate = 0;
     private static final Map<String, Integer> seasonRows = new LinkedHashMap<>();
     private static long tpsLastUpdate = 0;
@@ -140,7 +139,7 @@ public class ChartHandler {
         long now = System.currentTimeMillis();
         if (tpsLastUpdate + (30 * 60 * 1000) > now) return;
         tpsLastUpdate = now;
-        List<SQLRow> tpsList = tpsData.selectList(SQLKey.TPS.toUpperCase(),
+        List<SQLRow> tpsList = LOG_SQL.selectList(SQLKey.TPS.toUpperCase(),
                 new SQLFilter()
                         .order("CAST(ID AS INT) DESC")
                         .limit(68));
@@ -160,7 +159,7 @@ public class ChartHandler {
         long now = System.currentTimeMillis();
         if (pvpLastUpdate + (6 * 60 * 60 * 1000) > now) return;
         pvpLastUpdate = now;
-        List<SQLRow> backupList = pvpData.selectList(SQLKey.FIGHT, new SQLFilter());
+        List<SQLRow> backupList = DATA_SQL.selectList(SQLKey.FIGHT, new SQLFilter());
         Map<String, Integer> countMap = new HashMap<>();
         for (SQLRow map : backupList) {
             int point = map.getInt(SQLKey.POINT, 0);

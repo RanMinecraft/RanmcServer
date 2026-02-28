@@ -5,7 +5,6 @@ import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
 import cc.ranmc.server.util.CrossUtil;
-import cc.ranmc.sql.SQLBase;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import io.javalin.http.ContentType;
@@ -18,11 +17,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cc.ranmc.server.util.ConfigUtil.CONFIG;
+import static cc.ranmc.server.constant.Data.DATA_SQL;
 
 public class BanlistHandler {
-
-    private static final SQLBase data = new SQLBase(CONFIG.getString("sqlite"));
     private static long lastUpdate = 0;
     private static List<JSONObject> banlist;
 
@@ -102,7 +99,7 @@ public class BanlistHandler {
         banlist = new ArrayList<>();
         AtomicInteger id = new AtomicInteger();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        data.selectList(SQLKey.BANLIST).forEach(row -> {
+        DATA_SQL.selectList(SQLKey.BANLIST).forEach(row -> {
             id.getAndIncrement();
             JSONObject json = new JSONObject();
             json.put("player", row.getString(SQLKey.PLAYER));

@@ -6,6 +6,7 @@ import cc.ranmc.server.network.BroadcastHandler;
 import cc.ranmc.server.network.ChartHandler;
 import cc.ranmc.server.network.OptionsHandler;
 import cc.ranmc.server.network.VerifyHandler;
+import cc.ranmc.server.util.AIUtil;
 import cc.ranmc.server.util.ConfigUtil;
 import cc.ranmc.server.util.MinecraftUtil;
 import io.github.biezhi.ome.OhMyEmail;
@@ -47,6 +48,7 @@ public final class Main {
 
         // 初始化配置文件
         ConfigUtil.load();
+        //RecallUtil.load();
 
         // 初始化邮件
         Properties props = defaultConfig(false);
@@ -66,6 +68,8 @@ public final class Main {
                 .start(PORT);
 
         getLogger().info("已成功运行在端口" + PORT);
+
+        AIUtil.chat();
 
         new Timer().schedule(new TimerTask() {
             @Override

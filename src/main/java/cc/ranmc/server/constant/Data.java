@@ -1,5 +1,7 @@
 package cc.ranmc.server.constant;
 
+import cc.ranmc.sql.SQLBase;
+
 import static cc.ranmc.server.util.ConfigUtil.CONFIG;
 
 public class Data {
@@ -16,4 +18,9 @@ public class Data {
     public static final String BANLIST_PATH = "/banlist";
     public static final String TOKEN = CONFIG.getString("token");
     public static final String EMAIL_PWD = CONFIG.getString("email");
+    public static final String AI_BASE_URL = CONFIG.getString("ai_base_url");
+    public static final String AI_API_KEY = CONFIG.getString("ai_api_key");
+    public static final String AI_MODEL = CONFIG.getString("ai_model");
+    public static final SQLBase DATA_SQL = new SQLBase(CONFIG.getString("data_sql"));
+    public static final SQLBase LOG_SQL = new SQLBase(CONFIG.getString("log_sql"));
 }
