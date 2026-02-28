@@ -28,7 +28,7 @@ public class AIUtil {
         JSONObject json = new JSONObject();
         json.put("model", AI_MODEL);
         json.put("stream", false);
-        json.put("temperature", 1);
+        json.put("temperature", 0.6);
 
         JSONArray messages = new JSONArray();
 
