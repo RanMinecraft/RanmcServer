@@ -87,10 +87,9 @@ public class AIUtil {
         chat(builder.toString());
     }
     public static void chat(String context) {
-        AIUtil.chat("请帮我详细总结我的世界服务器内聊天信息，" +
-                        "如果玩家存在辱骂或刷屏等不当言语、" +
-                        "对服务器漏洞或建议或不满的地方。" +
-                        "以及对管理员阿然(Ranica)的讨论请告诉我。", context)
+        AIUtil.chat("请帮我详细总结我的世界桃花源服务器内聊天信息，" +
+                        "如果玩家存在辱骂或刷屏等不当言语请告诉我具体时间和聊天内容并分析原因，" +
+                        "留意玩家对服务器漏洞或建议或不满的地方以及对管理员阿然(Ranica)的讨论。", context)
                 .thenAccept(result -> {
                     if (result == null || result.isEmpty()) {
                         Main.getLogger().warn("请求 AI 总结失败: null");
