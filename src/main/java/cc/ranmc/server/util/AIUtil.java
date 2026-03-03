@@ -21,7 +21,7 @@ import static cc.ranmc.server.util.MarkdownUtil.mdToHtml;
 
 public class AIUtil {
 
-    private static final int TIMEOUT = 120 * 1000;
+    private static final int TIMEOUT = 150 * 1000;
 
     public static CompletableFuture<String> chat(String systemContext, String messageContext) {
 
