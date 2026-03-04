@@ -82,19 +82,21 @@ public class MinecraftUtil {
                         broadcast("主线已恢复,更新解析记录 " + mainSrv);
                     }
 
-                    if (!mainServerOnline && serverSrvMap.get("ranmc.cc").equals(mainSrv) && !lastCheckStatus) {
+                    if (!mainServerOnline && !lastCheckStatus) {
                         String backupSrv = "";
                         for (String key : newServerStatusMap.keySet()) {
                             if (newServerStatusMap.get(key)) {
                                 backupSrv = serverSrvMap.get(key);
                             }
                         }
-                        String backupServerInfo = "无备用线路可用";
-                        if (!backupSrv.isEmpty()) {
-                            backupServerInfo = "切换到备用线路 " + backupSrv;
-                            modifyRecord(backupSrv);
+                        if (!backupSrv.equals(serverSrvMap.get("ranmc.cc"))) {
+                            String backupServerInfo = "无备用线路可用";
+                            if (!backupSrv.isEmpty()) {
+                                backupServerInfo = "切换到备用线路 " + backupSrv;
+                                modifyRecord(backupSrv);
+                            }
+                            broadcast("检测到主线路离线," + backupServerInfo);
                         }
-                        broadcast("检测到主线路离线," + backupServerInfo);
                     }
 
                     lastCheckStatus = mainServerOnline;
