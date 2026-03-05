@@ -7,6 +7,7 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -23,9 +24,9 @@ public class MinecraftUtil {
     private static long recordId = 0;
     @Getter
     private static long lastCheckTime = 0;
-    private static boolean lastCheckStatus = true;
     @Getter
     private static JSONObject onlineData = new JSONObject();
+    private static int offset = 0;
 
     public static void updateServerStatus() {
         HttpUtil.post("https://dnsapi.cn/Record.List",
@@ -35,6 +36,7 @@ public class MinecraftUtil {
                         Main.getLogger().warn("获取记录列表失败");
                         return;
                     }
+                    final boolean[] updateOnlineData = {false};
                     serverSrvMap.clear();
                     final JSONObject[] severData = new JSONObject[1];
                     Map<String,Boolean> newServerStatusMap = new TreeMap<>();
@@ -49,57 +51,36 @@ public class MinecraftUtil {
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
                             JSONObject obj = getServerData(srv);
                             if (obj != null) severData[0] = obj;
-                            newServerLatencyMap.put(serverName, obj == null ? 0 : obj.getLongValue("latency", 0L));
-                            newServerStatusMap.put(serverName, obj != null);
+                            boolean online = obj != null;
+                            newServerLatencyMap.put(serverName, online ? obj.getLongValue("latency", 0L) : 0);
+                            newServerStatusMap.put(serverName, online);
                             serverSrvMap.put(serverName, srv);
+                            if (online && !updateOnlineData[0]) {
+                                // 更新服务器在线信息
+                                updateOnlineData[0] = true;
+                                onlineData = new JSONObject();
+                                String[] version = severData[0].getJSONObject("version")
+                                        .getString("name").split(" ");
+                                onlineData.put("version", version[version.length - 1]);
+                                onlineData.put("online", severData[0].getJSONObject("players")
+                                        .getIntValue("online", 0));
+                                onlineData.put("max", severData[0].getJSONObject("players")
+                                        .getIntValue("max", 0));
+                            }
                         } else if (name.equals("_minecraft._tcp")) {
-                            serverSrvMap.put("ranmc.cc", srv);
                             recordId = json.getLong("id");
                         }
                     });
 
-                    String mainSrv = ConfigUtil.CONFIG.getString("srv");
-                    JSONObject obj = getServerData(mainSrv);
-                    newServerLatencyMap.put("ranmc.cc", obj == null ? 0 : obj.getLongValue("latency", 0L));
-                    boolean mainServerOnline = obj != null;
-                    if (obj != null) severData[0] = obj;
-                    // 更新服务器在线信息
-                    onlineData = new JSONObject();
-                    if (severData[0] != null) {
-                        String[] version = severData[0].getJSONObject("version")
-                                .getString("name").split(" ");
-                        onlineData.put("version", version[version.length - 1]);
-                        onlineData.put("online", severData[0].getJSONObject("players")
-                                .getIntValue("online", 0));
-                        onlineData.put("max", severData[0].getJSONObject("players")
-                                .getIntValue("max", 0));
+                    // 切换线路
+                    if (serverSrvMap.isEmpty()) {
+                        broadcast("无可用线路");
+                    } else {
+                        offset++;
+                        if (offset >= serverSrvMap.size()) offset = 0;
+                        modifyRecord(new ArrayList<>(serverSrvMap.values()).get(offset));
                     }
 
-                    newServerStatusMap.put("ranmc.cc", mainServerOnline);
-                    mainSrv += ".";
-                    if (mainServerOnline && !serverSrvMap.get("ranmc.cc").equals(mainSrv)) {
-                        modifyRecord(mainSrv);
-                        broadcast("主线已恢复,更新解析记录 " + mainSrv);
-                    }
-
-                    if (!mainServerOnline && !lastCheckStatus) {
-                        String backupSrv = "";
-                        for (String key : newServerStatusMap.keySet()) {
-                            if (newServerStatusMap.get(key)) {
-                                backupSrv = serverSrvMap.get(key);
-                            }
-                        }
-                        if (!backupSrv.equals(serverSrvMap.get("ranmc.cc"))) {
-                            String backupServerInfo = "无备用线路可用";
-                            if (!backupSrv.isEmpty()) {
-                                backupServerInfo = "切换到备用线路 " + backupSrv;
-                                modifyRecord(backupSrv);
-                            }
-                            broadcast("检测到主线路离线," + backupServerInfo);
-                        }
-                    }
-
-                    lastCheckStatus = mainServerOnline;
                     lastCheckTime = System.currentTimeMillis();
                     serverStatusMap = newServerStatusMap;
                     serverLatencyMap = newServerLatencyMap;
