@@ -92,12 +92,10 @@ public class MinecraftUtil {
                 "login_token=" + ConfigUtil.CONFIG.getString("dnspod") +
                         "&domain=ranmc.cc&sub_domain=_minecraft._tcp&record_type=SRV&record_line_id=0&value=" + value + "&record_id=" + recordId,
                 body -> {
-                    if (!body.startsWith("{")) {
-                        Main.getLogger().warn("修改记录列表失败");
-                        return;
+                    if (!body.startsWith("{") ||
+                            !unicode(JSONObject.parseObject(body).getJSONObject("status").getString("message")).contains("成功")) {
+                        Main.getLogger().warn("修改记录列表失败 {}", value);
                     }
-                    Main.getLogger().warn("修改主线记录 {} 结果{}", value,
-                            unicode(JSONObject.parseObject(body).getJSONObject("status").getString("message")));
                 });
     }
 

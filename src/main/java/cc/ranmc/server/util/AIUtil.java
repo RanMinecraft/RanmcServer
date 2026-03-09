@@ -9,8 +9,6 @@ import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
 import kong.unirest.core.Unirest;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 import static cc.ranmc.server.constant.Data.AI_API_KEY;
@@ -66,17 +64,11 @@ public class AIUtil {
                 });
     }
 
-    public static void chat() {
+    public static void start(String date) {
         Main.getLogger().info("开始请求 AI 总结");
         StringBuilder builder = new StringBuilder();
         LOG_SQL.selectList(SQLKey.MESSAGE, new SQLFilter()
-                .where(SQLKey.DATE, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))).forEach(row -> {
-            /*//模型长度限制
-            if (builder.length() > 60000) {
-                chat(builder.toString());
-                builder.setLength(0);
-                Main.getLogger().warn("分段请求 AI 总结");
-            }*/
+                .where(SQLKey.DATE, date)).forEach(row -> {
             builder.append(row.getString(SQLKey.TIME))
                     .append(" ")
                     .append(row.getString(SQLKey.SENDER))

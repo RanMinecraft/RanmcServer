@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -75,7 +76,7 @@ public final class Main {
             public void run() {
                 LocalDateTime now = LocalDateTime.now();
                 if (now.getHour() == 23 && now.getMinute() == 59) {
-                    AIUtil.chat();
+                    AIUtil.start(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
                 }
                 MinecraftUtil.updateServerStatus();
             }
