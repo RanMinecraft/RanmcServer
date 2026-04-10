@@ -40,6 +40,8 @@ public final class Main {
     @Getter
     public static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    private static int today = LocalDateTime.now().getDayOfMonth();
+
     static void main() {
 
         System.out.println("-----------------------");
@@ -74,9 +76,10 @@ public final class Main {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                LocalDateTime now = LocalDateTime.now();
-                if (now.getHour() == 23 && now.getMinute() == 59) {
-                    AIUtil.start(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                int now = LocalDateTime.now().getDayOfMonth();
+                if (today != now) {
+                    AIUtil.start(LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                    today = now;
                 }
                 MinecraftUtil.updateServerStatus();
             }
