@@ -69,7 +69,7 @@ public final class Main {
                 .get(CHART_PATH, ChartHandler::handle)
                 .get(VERIFY_PATH, VerifyHandler::handle)
                 .options(ANY_PATH, OptionsHandler::handle)
-                .start(PORT);
+                .start("0.0.0.0", PORT);
 
         getLogger().info("已成功运行在端口" + PORT);
 
