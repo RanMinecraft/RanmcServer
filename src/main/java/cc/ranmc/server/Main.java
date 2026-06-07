@@ -62,14 +62,14 @@ public final class Main {
         props.put("mail.smtp.port", "465");
         OhMyEmail.config(props, "bot@ranmc.cc", EMAIL_PWD);
 
-        Javalin.create()
-                .get(BASE_PATH, BaseHandler::handle)
-                .get(BANLIST_PATH, BanlistHandler::handle)
-                .get(BROADCAST_PATH, BroadcastHandler::handle)
-                .get(CHART_PATH, ChartHandler::handle)
-                .get(VERIFY_PATH, VerifyHandler::handle)
-                .options(ANY_PATH, OptionsHandler::handle)
-                .start("0.0.0.0", PORT);
+        Javalin.create(config -> {
+            config.routes.get(BASE_PATH, BaseHandler::handle);
+            config.routes.get(BANLIST_PATH, BanlistHandler::handle);
+            config.routes.get(BROADCAST_PATH, BroadcastHandler::handle);
+            config.routes.get(CHART_PATH, ChartHandler::handle);
+            config.routes.get(VERIFY_PATH, VerifyHandler::handle);
+            config.routes.options(ANY_PATH, OptionsHandler::handle);
+        }).start("0.0.0.0", PORT);
 
         getLogger().info("已成功运行在端口" + PORT);
 

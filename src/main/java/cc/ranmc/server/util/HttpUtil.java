@@ -5,7 +5,7 @@ import kong.unirest.core.Unirest;
 
 import java.util.function.Consumer;
 
-import static cc.ranmc.utils.BasicUtil.THY_PREFIX;
+import static cc.ranmc.utils.BasicUtil.PREFIX;
 import static cc.ranmc.utils.BasicUtil.print;
 
 public class HttpUtil {
@@ -16,7 +16,7 @@ public class HttpUtil {
         Unirest.get(url).requestTimeout(TIMEOUT).asStringAsync()
                 .handleAsync((result, e) -> {
                     if (e != null) {
-                        print(THY_PREFIX + "&c网路请求失败 " + e.getMessage());
+                        print(PREFIX + "&c网路请求失败 " + e.getMessage());
                         return "";
                     }
                     return result.getBody();
@@ -31,7 +31,7 @@ public class HttpUtil {
                 .asStringAsync()
                 .handleAsync((result, e) -> {
                     if (e != null) {
-                        print(THY_PREFIX + "&c网路请求失败 " + e.getMessage());
+                        print(PREFIX + "&c网路请求失败 " + e.getMessage());
                         return "";
                     }
                     return result.getBody();
@@ -46,7 +46,7 @@ public class HttpUtil {
                 .asStringAsync()
                 .handleAsync((result, e) -> {
                     if (e != null) {
-                        print(THY_PREFIX + "&c网路请求失败 " + e.getMessage());
+                        print(PREFIX + "&c网路请求失败 " + e.getMessage());
                         return "";
                     }
                     return result.getBody();
