@@ -56,7 +56,6 @@ public class MinecraftUtil {
                             newServerStatusMap.put(serverName, online);
                             // 因为 樱花frp 无法被 mclist 解析
                             if (!serverName.equals("b5.ranmc.cc")) serverSrvMap.put(serverName, srv);
-                            System.out.println(serverName);
                             if (online && !updateOnlineData[0]) {
                                 // 更新服务器在线信息
                                 updateOnlineData[0] = true;
