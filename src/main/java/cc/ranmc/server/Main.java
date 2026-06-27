@@ -84,6 +84,13 @@ public final class Main {
                 MinecraftUtil.updateServerStatus();
             }
         }, 0, 1000 * 60);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                AIUtil.checkRecentChat();
+            }
+        }, 1000 * 30, 1000 * 60);
     }
 
 }

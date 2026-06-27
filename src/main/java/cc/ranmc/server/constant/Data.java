@@ -6,7 +6,7 @@ import static cc.ranmc.server.util.ConfigUtil.CONFIG;
 
 public class Data {
     public static final String AUTHOR = "Ranica";
-    public static final String VERSION = "Release 8.1";
+    public static final String VERSION = "Release 8.2";
     public static final String WEB_SITE = "https://www.ranmc.cc/";
     public static final String VERIFY_WEB_SITE = "https://www.ranmc.cc/verify.html?key=";
     public static final int PORT = 2263;
