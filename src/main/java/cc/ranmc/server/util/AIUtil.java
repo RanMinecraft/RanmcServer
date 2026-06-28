@@ -147,9 +147,7 @@ public class AIUtil {
                 lastMessageId = 0;
                 return; // 表为空
             }
-            // 取最后200条（或全部，如果总数不到200）
-            int startId = Math.max(0, max - 200);
-            lastMessageId = startId;
+            lastMessageId = max;
         }
 
         StringBuilder builder = new StringBuilder();
@@ -185,7 +183,7 @@ public class AIUtil {
         String systemPrompt = """
                 你是一个我的世界服务器聊天监控助手。\
                 我会给你最近的聊天记录，请你分析是否有玩家存在以下违规行为：\
-                1. 辱骂、攻击性言语 2. 恶意刷屏（重复发送相同或高度相似内容10次以上）\
+                1. 辱骂、攻击性、歧视性言语（3次以上） 2. 恶意刷屏（重复发送相同或高度相似内容10次以上）\
                 3. 发布宣传其他服务器（非桃花源 ranmc.cc）广告或违规链接。
                 如果有违规行为，请用以下 JSON 格式输出（仅输出 JSON，不要多余文字）：
                 {"violations":[{"player":"玩家名","reason":"违规原因描述"}]}
