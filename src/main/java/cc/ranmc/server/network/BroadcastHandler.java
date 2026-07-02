@@ -39,7 +39,7 @@ public class BroadcastHandler {
             OhMyEmail.subject("服务器消息")
                     .from("【桃花源】")
                     .to("xyfwdy@qq.com")
-                    .html(msg)
+                    .text(msg)
                     .send();
         } catch (SendMailException e) {
             Main.getLogger().info("发送邮件失败{}", e.getMessage());
