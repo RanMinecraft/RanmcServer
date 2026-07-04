@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class KeyGenerator {
 
-    private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz123456789";
+    private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
 
     public static String get() {
         StringBuilder builder = new StringBuilder();
