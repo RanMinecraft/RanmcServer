@@ -7,6 +7,8 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import kong.unirest.core.Unirest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static cc.ranmc.server.constant.Data.AI_API_KEY;
@@ -18,6 +20,24 @@ import static cc.ranmc.server.constant.Data.LOG_SQL;
 public class AIUtil {
 
     private static final int TIMEOUT = 150 * 1000;
+    private static final String SUMMARY_PROMPT = """
+            请帮我详细总结我的世界桃花源服务器内聊天信息。
+            输出必须严格使用以下 Markdown 标题结构，并使用简短列表，缺失内容写“无”：
+            # 今日概览
+            # 重点事件
+            # 异常言论
+            # 建议与反馈
+            # 管理员相关
+            # 结论与建议
+
+            额外要求：
+            1. 不要使用 Markdown 表格。
+            2. 不要使用代码块。
+            3. 不要输出 HTML。
+            4. 每个要点尽量简短，优先保留时间、玩家名、事件结论。
+            5. 如果玩家存在辱骂或刷屏等不当言语，请写明具体时间、聊天内容并分析原因。
+            6. 留意玩家对服务器建议、漏洞或不满的地方，以及对管理员阿然(Ranica)的讨论。
+            """;
 
     public static CompletableFuture<String> chat(String systemContext, String messageContext) {
 
@@ -74,25 +94,14 @@ public class AIUtil {
                     .append("说:").append(row.getString(SQLKey.MESSAGE))
                     .append("\n");
         });
-        chat(builder.toString());
+        summarize(date, builder.toString());
     }
 
-    private static void sendFeishuSummary(String markdownContent) {
+    private static void sendFeishuSummary(String date, String markdownContent) {
         try {
             JSONObject body = new JSONObject();
-            body.put("msg_type", "post");
-
-            JSONObject zhCn = new JSONObject();
-            zhCn.put("title", "服务器聊天 AI 总结");
-            zhCn.put("content", buildFeishuParagraphs(markdownContent));
-
-            JSONObject post = new JSONObject();
-            post.put("zh_cn", zhCn);
-
-            JSONObject content = new JSONObject();
-            content.put("post", post);
-
-            body.put("content", content);
+            body.put("msg_type", "interactive");
+            body.put("card", buildSummaryCard(date, markdownContent));
 
             Unirest.post(FEISHU_WEBHOOK)
                     .header("Content-Type", "application/json")
@@ -111,55 +120,151 @@ public class AIUtil {
         }
     }
 
-    private static JSONArray buildFeishuParagraphs(String markdownContent) {
-        JSONArray paragraphs = new JSONArray();
-        for (String line : markdownContent.split("\\R")) {
-            String normalized = normalizeMarkdownLine(line);
-            if (normalized == null || normalized.isBlank()) {
+    private static JSONObject buildSummaryCard(String date, String markdownContent) {
+        JSONObject card = new JSONObject();
+        card.put("schema", "2.0");
+
+        JSONObject config = new JSONObject();
+        config.put("update_multi", true);
+        card.put("config", config);
+
+        JSONObject header = new JSONObject();
+        header.put("template", "blue");
+        JSONObject title = new JSONObject();
+        title.put("tag", "plain_text");
+        title.put("content", "服务器聊天日报");
+        header.put("title", title);
+        JSONObject subtitle = new JSONObject();
+        subtitle.put("tag", "plain_text");
+        subtitle.put("content", date == null ? "" : date);
+        header.put("subtitle", subtitle);
+        card.put("header", header);
+
+        JSONObject body = new JSONObject();
+        body.put("direction", "vertical");
+        body.put("padding", "12px 12px 12px 12px");
+        body.put("elements", buildCardElements(markdownContent));
+        card.put("body", body);
+        return card;
+    }
+
+    private static JSONArray buildCardElements(String markdownContent) {
+        JSONArray elements = new JSONArray();
+        List<Section> sections = splitSections(markdownContent);
+        if (sections.isEmpty()) {
+            sections.add(new Section("今日概览", sanitizeMarkdown(markdownContent)));
+        }
+
+        for (Section section : sections) {
+            if (section.content == null || section.content.isBlank()) {
                 continue;
             }
-            JSONArray paragraph = new JSONArray();
-            JSONObject text = new JSONObject();
-            text.put("tag", "text");
-            text.put("text", normalized);
-            paragraph.add(text);
-            paragraphs.add(paragraph);
+            JSONObject element = new JSONObject();
+            element.put("tag", "markdown");
+            element.put("content", "## " + section.title + "\n" + section.content);
+            element.put("text_align", "left");
+            element.put("margin", "0px 0px 12px 0px");
+            elements.add(element);
         }
-        return paragraphs;
+        return elements;
+    }
+
+    private static List<Section> splitSections(String markdownContent) {
+        List<Section> sections = new ArrayList<>();
+        String currentTitle = null;
+        StringBuilder currentContent = new StringBuilder();
+
+        for (String rawLine : markdownContent.split("\\R")) {
+            String line = normalizeMarkdownLine(rawLine);
+            if (line == null) {
+                continue;
+            }
+            if (isHeading(line)) {
+                appendSection(sections, currentTitle, currentContent);
+                currentTitle = extractHeading(line);
+                currentContent = new StringBuilder();
+                continue;
+            }
+            if (currentContent.length() > 0) {
+                currentContent.append("\n");
+            }
+            currentContent.append(line);
+        }
+        appendSection(sections, currentTitle, currentContent);
+        return sections;
+    }
+
+    private static void appendSection(List<Section> sections, String title, StringBuilder content) {
+        String text = sanitizeMarkdown(content.toString());
+        if (text.isBlank()) {
+            return;
+        }
+        sections.add(new Section(title == null ? "补充信息" : title, text));
+    }
+
+    private static boolean isHeading(String line) {
+        return line.startsWith("# ")
+                || line.startsWith("## ")
+                || line.startsWith("### ");
+    }
+
+    private static String extractHeading(String line) {
+        return line.replaceFirst("^#+\\s*", "").trim();
+    }
+
+    private static String sanitizeMarkdown(String text) {
+        StringBuilder builder = new StringBuilder();
+        for (String rawLine : text.split("\\R")) {
+            String line = normalizeMarkdownLine(rawLine);
+            if (line == null || line.isBlank()) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append("\n");
+            }
+            builder.append(line);
+        }
+        return builder.toString();
     }
 
     private static String normalizeMarkdownLine(String line) {
         String text = line == null ? "" : line.trim();
-        if (text.isEmpty()) {
-            return null;
-        }
-        if ("```".equals(text)) {
+        if (text.isEmpty() || "```".equals(text)) {
             return null;
         }
         if (text.matches("^\\|(?:\\s*-+:?\\s*\\|)+$")) {
             return null;
         }
-        if (text.startsWith("### ")) {
-            text = "【" + text.substring(4).trim() + "】";
-        } else if (text.startsWith("## ")) {
-            text = "【" + text.substring(3).trim() + "】";
-        } else if (text.startsWith("# ")) {
-            text = "【" + text.substring(2).trim() + "】";
-        } else if (text.startsWith("- ") || text.startsWith("* ")) {
-            text = "• " + text.substring(2).trim();
+        if (text.startsWith("|") && text.endsWith("|")) {
+            String[] cells = text.substring(1, text.length() - 1).split("\\|");
+            StringBuilder builder = new StringBuilder("- ");
+            for (int i = 0; i < cells.length; i++) {
+                if (i > 0) {
+                    builder.append(" ｜ ");
+                }
+                builder.append(cells[i].trim());
+            }
+            text = builder.toString();
+        } else if (text.startsWith("* ")) {
+            text = "- " + text.substring(2).trim();
         } else if (text.matches("^-{3,}$")) {
-            text = "──────────";
+            return null;
         }
-        text = text.replace("**", "")
-                .replace("__", "")
-                .replace("`", "");
-        return text;
+        return text.replace("`", "").trim();
     }
 
-    public static void chat(String context) {
-        AIUtil.chat("请帮我详细总结我的世界桃花源服务器内聊天信息都有谁发生了什么事，" +
-                        "如果玩家存在辱骂或刷屏等不当言语请告诉我具体时间和聊天内容并分析原因，" +
-                        "留意玩家对服务器建议、漏洞或不满的地方以及对管理员阿然(Ranica)的讨论。", context)
+    private static class Section {
+        private final String title;
+        private final String content;
+
+        private Section(String title, String content) {
+            this.title = title;
+            this.content = content;
+        }
+    }
+
+    public static void summarize(String date, String context) {
+        AIUtil.chat(SUMMARY_PROMPT, context)
                 .thenAccept(result -> {
                     if (result == null || result.isEmpty()) {
                         Main.getLogger().warn("请求 AI 总结失败: null");
@@ -179,7 +284,7 @@ public class AIUtil {
                                     String content = message.getString("content");
                                     if (content != null) {
                                         Main.getLogger().info("请求 AI 总结成功\n{}", content);
-                                        sendFeishuSummary(content);
+                                        sendFeishuSummary(date, content);
                                         return;
                                     }
                                 }
