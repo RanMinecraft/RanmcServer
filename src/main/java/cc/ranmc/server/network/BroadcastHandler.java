@@ -27,18 +27,25 @@ public class BroadcastHandler {
         if (context.queryParamMap().containsKey(Prams.MSG)) {
             //String msg = URLDecoder.decode(map.get(Prams.MSG), StandardCharsets.UTF_8);
             String msg = context.queryParam(Prams.MSG);
-            if (context.queryParamMap().containsKey("type") && 
-                    context.queryParam("type").equals("feishu")) {
-                sendFeishu(msg);
-                Main.getLogger().info("发出飞书广播{}", msg);
-            } else {
-                sendEmail(msg);
-                Main.getLogger().info("发出邮件广播{}", msg);
-            }
+            String type = context.queryParam("type");
+            broadcast(msg, type);
+            Main.getLogger().info("发出{}广播: {}", type == null ? "feishu" : type, msg);
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
         context.result(json.toString());
+    }
+
+    public static void broadcast(String msg) {
+        broadcast(msg, null);
+    }
+
+    public static void broadcast(String msg, String type) {
+        if ("mail".equalsIgnoreCase(type)) {
+            sendEmail(msg);
+            return;
+        }
+        sendFeishu(msg);
     }
 
     public static void sendFeishu(String msg) {
@@ -78,4 +85,3 @@ public class BroadcastHandler {
         }
     }
 }
-
