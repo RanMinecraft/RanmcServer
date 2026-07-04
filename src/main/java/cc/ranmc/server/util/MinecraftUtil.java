@@ -12,8 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import static cc.ranmc.server.network.BroadcastHandler.broadcast;
-
+import static cc.ranmc.server.network.BroadcastHandler.sendEmail;
 public class MinecraftUtil {
 
     @Getter
@@ -77,7 +76,7 @@ public class MinecraftUtil {
 
                     // 切换线路
                     if (serverSrvMap.isEmpty()) {
-                        broadcast("无可用线路");
+                        sendEmail("无可用线路");
                     } else {
                         offset++;
                         if (offset >= serverSrvMap.size()) offset = 0;
