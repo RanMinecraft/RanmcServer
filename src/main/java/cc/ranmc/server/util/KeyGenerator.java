@@ -4,13 +4,14 @@ import java.util.Random;
 
 public class KeyGenerator {
 
+    private static final String CHARACTERS = "ABCDEFGHJKLMNPRTUVWXYZ346789";
+
     public static String get() {
         StringBuilder builder = new StringBuilder();
-        double length = (Math.random() * 3) + 4;
+        int length = (int) ((Math.random() * 3) + 4);
+        Random random = new Random();
         for (int i = 0; i < length; i++) {
-            String content = "abcdefghijklmnopqrstuvwxyz0123456789";
-            int number = new Random().nextInt(content.length() - 1);
-            builder.append(content.charAt(number));
+            builder.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }
         return builder.toString();
     }
