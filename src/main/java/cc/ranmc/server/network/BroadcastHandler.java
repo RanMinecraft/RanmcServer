@@ -63,9 +63,7 @@ public class BroadcastHandler {
                     .requestTimeout(8000)
                     .asStringAsync()
                     .thenAccept(response -> {
-                        if (response.getStatus() >= 200 && response.getStatus() < 300) {
-                            Main.getLogger().info("飞书提醒发送成功");
-                        } else {
+                        if (response.getStatus() < 200 || response.getStatus() >= 300) {
                             Main.getLogger().warn("飞书提醒发送失败: {}", response.getBody());
                         }
                     });
