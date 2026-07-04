@@ -30,6 +30,7 @@ public class BroadcastHandler {
             String type = context.queryParam("type");
             broadcast(msg, type);
             Main.getLogger().info("发出{}广播: {}", type == null ? "feishu" : type, msg);
+            json.put(Prams.CODE, Code.SUCCESS);
         } else {
             json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
