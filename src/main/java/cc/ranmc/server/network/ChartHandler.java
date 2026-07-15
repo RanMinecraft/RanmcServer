@@ -150,7 +150,6 @@ public class ChartHandler {
             obj.put(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
             obj.put(SQLKey.PLAYER.toLowerCase(), row.getInt(SQLKey.PLAYER, 0));
             obj.put(SQLKey.TPS.toLowerCase(), row.getDouble(SQLKey.TPS, 20d));
-            obj.put(SQLKey.MSPT.toLowerCase(), row.getDouble(SQLKey.MSPT, 0d));
             tpsRows.add(obj);
         }
     }
