@@ -54,7 +54,7 @@ public class MinecraftUtil {
                             newServerLatencyMap.put(serverName, online ? obj.getLongValue("latency", 0L) : 0);
                             newServerStatusMap.put(serverName, online);
                             // 因为 樱花frp 无法被 mclist 解析
-                            if (!serverName.equals("b5.ranmc.cc") && !serverName.equals("b6.ranmc.cc")) {
+                            if (!serverName.equals("b6.ranmc.cc")) {
                                 serverSrvMap.put(serverName, srv);
                             }
                             if (online && !updateOnlineData[0]) {
