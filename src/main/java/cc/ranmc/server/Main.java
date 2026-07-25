@@ -30,7 +30,6 @@ import static cc.ranmc.server.constant.Data.CHART_PATH;
 import static cc.ranmc.server.constant.Data.EMAIL_PWD;
 import static cc.ranmc.server.constant.Data.PORT;
 import static cc.ranmc.server.constant.Data.VERIFY_PATH;
-import static cc.ranmc.server.constant.Data.VERSION;
 import static cc.ranmc.server.constant.Data.WEB_SITE;
 import static io.github.biezhi.ome.OhMyEmail.defaultConfig;
 
@@ -46,7 +45,8 @@ public final class Main {
 
         System.out.println("-----------------------");
         System.out.println("RanmcServer By " + AUTHOR);
-        System.out.println("Version: " + VERSION);
+        String version = Main.class.getPackage().getImplementationVersion();
+        System.out.println("Version: " + (version != null ? version : "DEV"));
         System.out.println(WEB_SITE);
         System.out.println("-----------------------");
 
