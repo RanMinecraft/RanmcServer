@@ -44,9 +44,12 @@ public class MinecraftUtil {
                         JSONObject json = JSONObject.parseObject(record.toString());
                         String name = json.getString("name");
                         String srv = json.getString("value");
+                        String status = json.getString("status");
                         if (name.startsWith("_minecraft._tcp.b")
                                 && !name.contains("test")
                                 && !name.contains("city")) {
+                            // 跳过被暂停的解析记录
+                            if ("disable".equals(status)) return;
                             String serverName = name.replace("_minecraft._tcp.", "") + ".ranmc.cc";
                             JSONObject obj = getServerData(srv);
                             if (obj != null) severData[0] = obj;
