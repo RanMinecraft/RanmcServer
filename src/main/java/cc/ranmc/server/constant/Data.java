@@ -21,6 +21,8 @@ public class Data {
     public static final String AI_API_KEY = CONFIG.getString("ai_api_key");
     public static final String AI_MODEL = CONFIG.getString("ai_model");
     public static final String FEISHU_WEBHOOK = CONFIG.getString("feishu_webhook");
+    public static final String QQ_APP_ID = CONFIG.getString("qq_app_id");
+    public static final String QQ_CLIENT_SECRET = CONFIG.getString("qq_client_secret");
     public static final SQLBase DATA_SQL = new SQLBase(CONFIG.getString("data_sql"));
     public static final SQLBase LOG_SQL = new SQLBase(CONFIG.getString("log_sql"));
 }

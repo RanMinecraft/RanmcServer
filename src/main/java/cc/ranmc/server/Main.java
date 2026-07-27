@@ -6,6 +6,7 @@ import cc.ranmc.server.network.BroadcastHandler;
 import cc.ranmc.server.network.ChartHandler;
 import cc.ranmc.server.network.OptionsHandler;
 import cc.ranmc.server.network.VerifyHandler;
+import cc.ranmc.server.qqbot.QQBotHandler;
 import cc.ranmc.server.util.AIUtil;
 import cc.ranmc.server.util.ConfigUtil;
 import cc.ranmc.server.util.MinecraftUtil;
@@ -29,6 +30,8 @@ import static cc.ranmc.server.constant.Data.BROADCAST_PATH;
 import static cc.ranmc.server.constant.Data.CHART_PATH;
 import static cc.ranmc.server.constant.Data.EMAIL_PWD;
 import static cc.ranmc.server.constant.Data.PORT;
+import static cc.ranmc.server.constant.Data.QQ_APP_ID;
+import static cc.ranmc.server.constant.Data.QQ_CLIENT_SECRET;
 import static cc.ranmc.server.constant.Data.VERIFY_PATH;
 import static cc.ranmc.server.constant.Data.WEB_SITE;
 import static io.github.biezhi.ome.OhMyEmail.defaultConfig;
@@ -72,6 +75,12 @@ public final class Main {
         }).start("0.0.0.0", PORT);
 
         getLogger().info("已成功运行在端口" + PORT);
+
+        // QQ Bot
+        if (QQ_APP_ID != null && !QQ_APP_ID.isEmpty()
+                && QQ_CLIENT_SECRET != null && !QQ_CLIENT_SECRET.isEmpty()) {
+            QQBotHandler.start(QQ_APP_ID, QQ_CLIENT_SECRET);
+        }
 
         new Timer().schedule(new TimerTask() {
             @Override
