@@ -5,7 +5,7 @@ import cc.ranmc.server.constant.Data;
 import cc.ranmc.server.constant.Prams;
 import cc.ranmc.server.util.CrossUtil;
 import cc.ranmc.server.util.VerifyUtil;
-import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonObject;
 import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 
@@ -21,16 +21,16 @@ public class VerifyHandler {
 
         if (context.queryParamMap().containsKey(Prams.TOKEN) &&
                 Data.TOKEN.equals(context.queryParam(Prams.TOKEN))) {
-            JSONObject json = new JSONObject();
+            JsonObject json = new JsonObject();
             if (context.queryParamMap().containsKey(Prams.EMAIL) &&
                     context.queryParamMap().containsKey(Prams.MODE) &&
                     context.queryParamMap().containsKey(Prams.PLAYER)) {
-                json.put(Prams.CODE, VerifyUtil.check(
+                json.addProperty(Prams.CODE, VerifyUtil.check(
                         context.queryParam(Prams.PLAYER),
                         context.queryParam(Prams.EMAIL),
                         Objects.requireNonNull(context.queryParam(Prams.MODE))));
             } else {
-                json.put(Prams.CODE, BAD_REQUEST);
+                json.addProperty(Prams.CODE, BAD_REQUEST);
             }
             context.result(json.toString());
             return;

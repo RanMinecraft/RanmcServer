@@ -1,6 +1,6 @@
 package cc.ranmc.server.util;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonObject;
 import kong.unirest.core.Unirest;
 
 import java.util.function.Consumer;
@@ -38,7 +38,7 @@ public class HttpUtil {
                 }).thenAccept(callback);
     }
 
-    public static void post(String url, JSONObject body, Consumer<String> callback) {
+    public static void post(String url, JsonObject body, Consumer<String> callback) {
         Unirest.post(url)
                 .header("Content-Type", "application/json; charset=utf-8")
                 .body(body.toString())

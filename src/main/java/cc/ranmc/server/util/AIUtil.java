@@ -3,8 +3,8 @@ package cc.ranmc.server.util;
 import cc.ranmc.constant.SQLKey;
 import cc.ranmc.server.Main;
 import cc.ranmc.sql.SQLFilter;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import kong.unirest.core.Unirest;
 
 import java.util.ArrayList;
@@ -41,24 +41,24 @@ public class AIUtil {
 
     public static CompletableFuture<String> chat(String systemContext, String messageContext) {
 
-        JSONObject json = new JSONObject();
-        json.put("model", AI_MODEL);
-        json.put("stream", false);
-        json.put("temperature", 0.5);
+        JsonObject json = new JsonObject();
+        json.addProperty("model", AI_MODEL);
+        json.addProperty("stream", false);
+        json.addProperty("temperature", 0.5);
 
-        JSONArray messages = new JSONArray();
+        JsonArray messages = new JsonArray();
 
-        JSONObject system = new JSONObject();
-        system.put("role", "system");
-        system.put("content", systemContext);
+        JsonObject system = new JsonObject();
+        system.addProperty("role", "system");
+        system.addProperty("content", systemContext);
         messages.add(system);
 
-        JSONObject user = new JSONObject();
-        user.put("role", "user");
-        user.put("content", messageContext);
+        JsonObject user = new JsonObject();
+        user.addProperty("role", "user");
+        user.addProperty("content", messageContext);
         messages.add(user);
 
-        json.put("messages", messages);
+        json.add("messages", messages);
 
         return Unirest.post(AI_BASE_URL + "/chat/completions")
                 .requestTimeout(TIMEOUT)
@@ -76,9 +76,9 @@ public class AIUtil {
                     }
                 })
                 .exceptionally(ex -> {
-                    JSONObject error = new JSONObject();
-                    error.put("error", ex.getMessage());
-                    return error.toJSONString();
+                    JsonObject error = new JsonObject();
+                    error.addProperty("error", ex.getMessage());
+                    return error.toString();
                 });
     }
 
@@ -99,9 +99,9 @@ public class AIUtil {
 
     private static void sendFeishuSummary(String date, String markdownContent) {
         try {
-            JSONObject body = new JSONObject();
-            body.put("msg_type", "interactive");
-            body.put("card", buildSummaryCard(date, markdownContent));
+            JsonObject body = new JsonObject();
+            body.addProperty("msg_type", "interactive");
+            body.add("card", buildSummaryCard(date, markdownContent));
 
             Unirest.post(FEISHU_WEBHOOK)
                     .header("Content-Type", "application/json")
@@ -120,36 +120,36 @@ public class AIUtil {
         }
     }
 
-    private static JSONObject buildSummaryCard(String date, String markdownContent) {
-        JSONObject card = new JSONObject();
-        card.put("schema", "2.0");
+    private static JsonObject buildSummaryCard(String date, String markdownContent) {
+        JsonObject card = new JsonObject();
+        card.addProperty("schema", "2.0");
 
-        JSONObject config = new JSONObject();
-        config.put("update_multi", true);
-        card.put("config", config);
+        JsonObject config = new JsonObject();
+        config.addProperty("update_multi", true);
+        card.add("config", config);
 
-        JSONObject header = new JSONObject();
-        header.put("template", "blue");
-        JSONObject title = new JSONObject();
-        title.put("tag", "plain_text");
-        title.put("content", "服务器聊天日报");
-        header.put("title", title);
-        JSONObject subtitle = new JSONObject();
-        subtitle.put("tag", "plain_text");
-        subtitle.put("content", date == null ? "" : date);
-        header.put("subtitle", subtitle);
-        card.put("header", header);
+        JsonObject header = new JsonObject();
+        header.addProperty("template", "blue");
+        JsonObject title = new JsonObject();
+        title.addProperty("tag", "plain_text");
+        title.addProperty("content", "服务器聊天日报");
+        header.add("title", title);
+        JsonObject subtitle = new JsonObject();
+        subtitle.addProperty("tag", "plain_text");
+        subtitle.addProperty("content", date == null ? "" : date);
+        header.add("subtitle", subtitle);
+        card.add("header", header);
 
-        JSONObject body = new JSONObject();
-        body.put("direction", "vertical");
-        body.put("padding", "12px 12px 12px 12px");
-        body.put("elements", buildCardElements(markdownContent));
-        card.put("body", body);
+        JsonObject body = new JsonObject();
+        body.addProperty("direction", "vertical");
+        body.addProperty("padding", "12px 12px 12px 12px");
+        body.add("elements", buildCardElements(markdownContent));
+        card.add("body", body);
         return card;
     }
 
-    private static JSONArray buildCardElements(String markdownContent) {
-        JSONArray elements = new JSONArray();
+    private static JsonArray buildCardElements(String markdownContent) {
+        JsonArray elements = new JsonArray();
         List<Section> sections = splitSections(markdownContent);
         if (sections.isEmpty()) {
             sections.add(new Section("今日概览", sanitizeMarkdown(markdownContent)));
@@ -159,11 +159,11 @@ public class AIUtil {
             if (section.content == null || section.content.isBlank()) {
                 continue;
             }
-            JSONObject element = new JSONObject();
-            element.put("tag", "markdown");
-            element.put("content", "## " + section.title + "\n" + section.content);
-            element.put("text_align", "left");
-            element.put("margin", "0px 0px 12px 0px");
+            JsonObject element = new JsonObject();
+            element.addProperty("tag", "markdown");
+            element.addProperty("content", "## " + section.title + "\n" + section.content);
+            element.addProperty("text_align", "left");
+            element.addProperty("margin", "0px 0px 12px 0px");
             elements.add(element);
         }
         return elements;
@@ -270,18 +270,18 @@ public class AIUtil {
                         Main.getLogger().warn("请求 AI 总结失败: null");
                     }
                     try {
-                        JSONObject root = JSONObject.parseObject(result);
-                        if (root == null || root.containsKey("error")) {
-                            Main.getLogger().warn("请求 AI 总结失败: {}", root == null ? "null" : root.getString("error"));
+                        JsonObject root = JsonUtil.parse(result);
+                        if (root == null || root.has("error")) {
+                            Main.getLogger().warn("请求 AI 总结失败: {}", root == null ? "null" : JsonUtil.getString(root, "error"));
                             return;
                         }
-                        JSONArray choices = root.getJSONArray("choices");
+                        JsonArray choices = JsonUtil.getArray(root, "choices");
                         if (choices != null && !choices.isEmpty()) {
-                            JSONObject first = choices.getJSONObject(0);
+                            JsonObject first = choices.get(0).getAsJsonObject();
                             if (first != null) {
-                                JSONObject message = first.getJSONObject("message");
+                                JsonObject message = JsonUtil.getObject(first, "message");
                                 if (message != null) {
-                                    String content = message.getString("content");
+                                    String content = JsonUtil.getString(message, "content");
                                     if (content != null) {
                                         Main.getLogger().info("请求 AI 总结成功\n{}", content);
                                         sendFeishuSummary(date, content);

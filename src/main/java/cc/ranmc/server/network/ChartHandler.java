@@ -5,11 +5,12 @@ import cc.ranmc.server.Main;
 import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Prams;
 import cc.ranmc.server.util.CrossUtil;
+import cc.ranmc.server.util.JsonUtil;
 import cc.ranmc.server.util.MinecraftUtil;
 import cc.ranmc.sql.SQLFilter;
 import cc.ranmc.sql.SQLRow;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
@@ -26,13 +27,13 @@ import java.util.Map;
 
 import static cc.ranmc.server.constant.Data.DATA_SQL;
 import static cc.ranmc.server.constant.Data.LOG_SQL;
-import static cc.ranmc.server.util.ConfigUtil.CONFIG;
+import static cc.ranmc.server.util.ConfigUtil.getString;
 
 public class ChartHandler {
     private static long seasonLastUpdate = 0;
     private static final Map<String, Integer> seasonRows = new LinkedHashMap<>();
     private static long tpsLastUpdate = 0;
-    private static final JSONArray tpsRows = new JSONArray();
+    private static JsonArray tpsRows = new JsonArray();
     private static long pvpLastUpdate = 0;
     private static final Map<String, Integer> pvpRows = new LinkedHashMap<>();
 
@@ -41,10 +42,10 @@ public class ChartHandler {
         CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
 
-        JSONObject json = new JSONObject();
+        JsonObject json = new JsonObject();
         // 检查请求
         if (HandlerType.GET != context.method() || !context.queryParamMap().containsKey(Prams.TYPE)) {
-            json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
+            json.addProperty(Prams.CODE, Code.UNKNOWN_REQUEST);
             context.status(Code.UNKNOWN_REQUEST);
             context.result(json.toString());
             return;
@@ -52,34 +53,34 @@ public class ChartHandler {
         String type = context.queryParam(Prams.TYPE);
         if ("pvp".equalsIgnoreCase(type)) {
             updatePvpData();
-            json.put(Prams.CODE, Code.SUCCESS);
-            json.put(Prams.DATA, pvpRows);
+            json.addProperty(Prams.CODE, Code.SUCCESS);
+            json.add(Prams.DATA, JsonUtil.toTree(pvpRows));
         } else if ("tps".equalsIgnoreCase(type)) {
             updateTpsData();
-            json.put(Prams.CODE, Code.SUCCESS);
-            json.put(Prams.DATA, tpsRows);
+            json.addProperty(Prams.CODE, Code.SUCCESS);
+            json.add(Prams.DATA, tpsRows);
         } else if ("season".equalsIgnoreCase(type)) {
             updateSeasonData();
-            json.put(Prams.CODE, Code.SUCCESS);
-            json.put(Prams.DATA, seasonRows);
+            json.addProperty(Prams.CODE, Code.SUCCESS);
+            json.add(Prams.DATA, JsonUtil.toTree(seasonRows));
         } else if ("status".equalsIgnoreCase(type)) {
             updateSeasonData();
-            json.put(Prams.CODE, Code.SUCCESS);
-            JSONArray data = new JSONArray();
+            json.addProperty(Prams.CODE, Code.SUCCESS);
+            JsonArray data = new JsonArray();
             for (String key : MinecraftUtil.getServerStatusMap().keySet()) {
-                JSONObject obj = new JSONObject();
-                obj.put("host", key);
-                obj.put("status", MinecraftUtil.getServerStatusMap().get(key));
-                obj.put("latency", MinecraftUtil.getServerLatencyMap().get(key));
+                JsonObject obj = new JsonObject();
+                obj.addProperty("host", key);
+                obj.addProperty("status", MinecraftUtil.getServerStatusMap().get(key));
+                obj.addProperty("latency", MinecraftUtil.getServerLatencyMap().get(key));
                 data.add(obj);
             }
-            json.put(Prams.DATA, data);
-            json.put(Prams.TIME, MinecraftUtil.getLastCheckTime());
+            json.add(Prams.DATA, data);
+            json.addProperty(Prams.TIME, MinecraftUtil.getLastCheckTime());
         } else if ("online".equalsIgnoreCase(type)) {
-            json.put(Prams.CODE, Code.SUCCESS);
-            json.put(Prams.DATA, MinecraftUtil.getOnlineData());
+            json.addProperty(Prams.CODE, Code.SUCCESS);
+            json.add(Prams.DATA, MinecraftUtil.getOnlineData());
         } else {
-            json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
+            json.addProperty(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
 
         if (context.header("X-Forwarded-For") != null) {
@@ -93,7 +94,7 @@ public class ChartHandler {
         long now = System.currentTimeMillis();
         if (seasonLastUpdate + (60 * 60 * 1000) > now) return;
         seasonLastUpdate = now;
-        File file = new File(CONFIG.getString("season"));
+        File file = new File(getString("season"));
         if (!file.exists()) {
             Main.getLogger().error("找不到 season.yml");
             return;
@@ -143,13 +144,13 @@ public class ChartHandler {
                 new SQLFilter()
                         .order("CAST(ID AS INT) DESC")
                         .limit(68));
-        tpsRows.clear();
+        tpsRows = new JsonArray();
         for (SQLRow row : tpsList) {
-            JSONObject obj = new JSONObject();
-            obj.put(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
-            obj.put(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
-            obj.put(SQLKey.PLAYER.toLowerCase(), row.getInt(SQLKey.PLAYER, 0));
-            obj.put(SQLKey.TPS.toLowerCase(), row.getDouble(SQLKey.TPS, 20d));
+            JsonObject obj = new JsonObject();
+            obj.addProperty(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
+            obj.addProperty(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
+            obj.addProperty(SQLKey.PLAYER.toLowerCase(), row.getInt(SQLKey.PLAYER, 0));
+            obj.addProperty(SQLKey.TPS.toLowerCase(), row.getDouble(SQLKey.TPS, 20d));
             tpsRows.add(obj);
         }
     }
@@ -211,4 +212,3 @@ public class ChartHandler {
         return text;
     }
 }
-

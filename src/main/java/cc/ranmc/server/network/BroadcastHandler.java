@@ -5,7 +5,7 @@ import cc.ranmc.server.constant.Code;
 import cc.ranmc.server.constant.Data;
 import cc.ranmc.server.constant.Prams;
 import cc.ranmc.server.util.CrossUtil;
-import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonObject;
 import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
 import io.javalin.http.ContentType;
@@ -17,10 +17,10 @@ public class BroadcastHandler {
     public static void handle(Context context) {
         CrossUtil.allow(context);
         context.contentType(ContentType.APPLICATION_JSON);
-        JSONObject json = new JSONObject();
+        JsonObject json = new JsonObject();
         if (!context.queryParamMap().containsKey(Prams.TOKEN) ||
                 !Data.TOKEN.equals(context.queryParam(Prams.TOKEN))) {
-            json.put(Prams.CODE, Code.NO_PERMISSION);
+            json.addProperty(Prams.CODE, Code.NO_PERMISSION);
             context.result(json.toString());
             return;
         }
@@ -30,9 +30,9 @@ public class BroadcastHandler {
             String type = context.queryParam("type");
             broadcast(msg, type);
             Main.getLogger().info("发出{}广播: {}", type == null ? "feishu" : type, msg);
-            json.put(Prams.CODE, Code.SUCCESS);
+            json.addProperty(Prams.CODE, Code.SUCCESS);
         } else {
-            json.put(Prams.CODE, Code.UNKNOWN_REQUEST);
+            json.addProperty(Prams.CODE, Code.UNKNOWN_REQUEST);
         }
         context.result(json.toString());
     }
@@ -51,11 +51,11 @@ public class BroadcastHandler {
 
     public static void sendFeishu(String msg) {
         try {
-            JSONObject body = new JSONObject();
-            body.put("msg_type", "text");
-            JSONObject content = new JSONObject();
-            content.put("text", msg);
-            body.put("content", content);
+            JsonObject body = new JsonObject();
+            body.addProperty("msg_type", "text");
+            JsonObject content = new JsonObject();
+            content.addProperty("text", msg);
+            body.add("content", content);
 
             Unirest.post(Data.FEISHU_WEBHOOK)
                     .header("Content-Type", "application/json")

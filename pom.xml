@@ -6,7 +6,7 @@
 
     <groupId>cc.ranmc.server</groupId>
     <artifactId>RanmcServer</artifactId>
-    <version>Release-8.6</version>
+    <version>Release-8.7</version>
 
     <properties>
         <java.version>26</java.version>
@@ -111,9 +111,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.64</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.14.0</version>
             <scope>compile</scope>
         </dependency>
 
