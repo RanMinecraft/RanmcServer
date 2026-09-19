@@ -6,12 +6,12 @@
 
     <groupId>cc.ranmc.server</groupId>
     <artifactId>RanmcServer</artifactId>
-    <version>Release-8.7</version>
+    <version>Release-8.8</version>
 
     <properties>
         <java.version>26</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
     </properties>
 
     <build>
