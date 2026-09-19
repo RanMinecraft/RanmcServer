@@ -43,7 +43,7 @@ public final class Main {
 
     private static int today = LocalDateTime.now().getDayOfMonth();
 
-    static void main() {
+    public static void main(String[] args) {
 
         System.out.println("-----------------------");
         System.out.println("RanmcServer By " + AUTHOR);
