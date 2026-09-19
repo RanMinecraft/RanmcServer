@@ -6,7 +6,7 @@
 
     <groupId>cc.ranmc.server</groupId>
     <artifactId>RanmcServer</artifactId>
-    <version>Release-8.8</version>
+    <version>Release-8.9</version>
 
     <properties>
         <java.version>26</java.version>

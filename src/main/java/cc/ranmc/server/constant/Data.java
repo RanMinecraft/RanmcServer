@@ -2,6 +2,7 @@ package cc.ranmc.server.constant;
 
 import cc.ranmc.sql.SQLBase;
 
+import static cc.ranmc.server.util.ConfigUtil.getBoolean;
 import static cc.ranmc.server.util.ConfigUtil.getString;
 
 public class Data {
@@ -18,6 +19,7 @@ public class Data {
     public static final String PLUGIN_PATH = "/plugin";
     public static final String TOKEN = getString("token");
     public static final String EMAIL_PWD = getString("email");
+    public static final boolean AI_ENABLE = getBoolean("ai_enable", true);
     public static final String AI_BASE_URL = getString("ai_base_url");
     public static final String AI_API_KEY = getString("ai_api_key");
     public static final String AI_MODEL = getString("ai_model");

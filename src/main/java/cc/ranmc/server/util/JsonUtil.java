@@ -23,6 +23,11 @@ public class JsonUtil {
         return e == null || e.isJsonNull() ? null : e.getAsString();
     }
 
+    public static boolean getBoolean(JsonObject obj, String key, boolean def) {
+        JsonElement e = obj.get(key);
+        return e == null || e.isJsonNull() ? def : e.getAsBoolean();
+    }
+
     public static int getInt(JsonObject obj, String key, int def) {
         JsonElement e = obj.get(key);
         return e == null || e.isJsonNull() ? def : e.getAsInt();

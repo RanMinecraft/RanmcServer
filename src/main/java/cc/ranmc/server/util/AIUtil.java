@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static cc.ranmc.server.constant.Data.AI_ENABLE;
 import static cc.ranmc.server.constant.Data.AI_API_KEY;
 import static cc.ranmc.server.constant.Data.AI_BASE_URL;
 import static cc.ranmc.server.constant.Data.AI_MODEL;
@@ -83,6 +84,7 @@ public class AIUtil {
     }
 
     public static void start(String date) {
+        if (!AI_ENABLE) return;
         Main.getLogger().info("开始请求 AI 总结");
         StringBuilder builder = new StringBuilder();
         LOG_SQL.selectList(SQLKey.MESSAGE, new SQLFilter()

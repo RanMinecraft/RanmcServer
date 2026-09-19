@@ -22,4 +22,8 @@ public class ConfigUtil {
     public static String getString(String key) {
         return JsonUtil.getString(CONFIG, key);
     }
+
+    public static boolean getBoolean(String key, boolean def) {
+        return JsonUtil.getBoolean(CONFIG, key, def);
+    }
 }
