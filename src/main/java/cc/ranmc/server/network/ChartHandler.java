@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,11 +30,11 @@ import static cc.ranmc.server.util.ConfigUtil.getString;
 
 public class ChartHandler {
     private static long seasonLastUpdate = 0;
-    private static final Map<String, Integer> seasonRows = new LinkedHashMap<>();
+    private static volatile Map<String, Integer> seasonRows = new LinkedHashMap<>();
     private static long tpsLastUpdate = 0;
-    private static JsonArray tpsRows = new JsonArray();
+    private static volatile JsonArray tpsRows = new JsonArray();
     private static long pvpLastUpdate = 0;
-    private static final Map<String, Integer> pvpRows = new LinkedHashMap<>();
+    private static volatile Map<String, Integer> pvpRows = new LinkedHashMap<>();
 
     public static void handle(Context context) {
         // 允许跨域
@@ -118,8 +117,7 @@ public class ChartHandler {
             Main.getLogger().error("无法读取 season.yml");
             return;
         }
-        seasonRows.clear();
-        List<String> order = new ArrayList<>();
+        Map<String, Integer> tempRows = new LinkedHashMap<>();
         for (String key : data.keySet()) {
             String name = key.replace("三叉戟", "")
                     .replace("戟", "")
@@ -130,10 +128,10 @@ public class ChartHandler {
                     .replace("护腿", "")
                     .replace("之靴", "")
                     .replace("之矛", "");
-            if (!order.contains(name)) order.add(name);
             Integer count = (int) data.get(key);
-            seasonRows.put(name, seasonRows.getOrDefault(name, 0) + count);
+            tempRows.put(name, tempRows.getOrDefault(name, 0) + count);
         }
+        seasonRows = tempRows;
     }
 
     public static void updateTpsData() {
@@ -144,15 +142,16 @@ public class ChartHandler {
                 new SQLFilter()
                         .order("CAST(ID AS INT) DESC")
                         .limit(68));
-        tpsRows = new JsonArray();
+        JsonArray tempRows = new JsonArray();
         for (SQLRow row : tpsList) {
             JsonObject obj = new JsonObject();
             obj.addProperty(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
             obj.addProperty(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
             obj.addProperty(SQLKey.PLAYER.toLowerCase(), row.getInt(SQLKey.PLAYER, 0));
             obj.addProperty(SQLKey.TPS.toLowerCase(), row.getDouble(SQLKey.TPS, 20d));
-            tpsRows.add(obj);
+            tempRows.add(obj);
         }
+        tpsRows = tempRows;
     }
 
     public static void updatePvpData() {
@@ -174,23 +173,24 @@ public class ChartHandler {
             emerable --;
             chapion = 1;
         }
-        pvpRows.clear();
-        pvpRows.put("巅峰", chapion);
-        pvpRows.put("翡翠", emerable);
-        pvpRows.put("钻石Ⅰ", countMap.getOrDefault("钻石Ⅰ", 0));
-        pvpRows.put("钻石Ⅱ", countMap.getOrDefault("钻石Ⅱ", 0));
-        pvpRows.put("钻石Ⅲ", countMap.getOrDefault("钻石Ⅲ", 0));
-        pvpRows.put("黄金Ⅰ", countMap.getOrDefault("黄金Ⅰ", 0));
-        pvpRows.put("黄金Ⅱ", countMap.getOrDefault("黄金Ⅱ", 0));
-        pvpRows.put("黄金Ⅲ", countMap.getOrDefault("黄金Ⅲ", 0));
-        pvpRows.put("铁锭Ⅰ", countMap.getOrDefault("铁锭Ⅰ", 0));
-        pvpRows.put("铁锭Ⅱ", countMap.getOrDefault("铁锭Ⅱ", 0));
-        pvpRows.put("铁锭Ⅲ", countMap.getOrDefault("铁锭Ⅲ", 0));
-        pvpRows.put("粗铜Ⅰ", countMap.getOrDefault("粗铜Ⅰ", 0));
-        pvpRows.put("粗铜Ⅱ", countMap.getOrDefault("粗铜Ⅱ", 0));
-        pvpRows.put("粗铜Ⅲ", countMap.getOrDefault("粗铜Ⅲ", 0));
-        pvpRows.put("粗铜", countMap.getOrDefault("粗铜", 0));
-        //pvpRows.put("未定级", countMap.getOrDefault("未定级", 0));
+        Map<String, Integer> tempRows = new LinkedHashMap<>();
+        tempRows.put("巅峰", chapion);
+        tempRows.put("翡翠", emerable);
+        tempRows.put("钻石Ⅰ", countMap.getOrDefault("钻石Ⅰ", 0));
+        tempRows.put("钻石Ⅱ", countMap.getOrDefault("钻石Ⅱ", 0));
+        tempRows.put("钻石Ⅲ", countMap.getOrDefault("钻石Ⅲ", 0));
+        tempRows.put("黄金Ⅰ", countMap.getOrDefault("黄金Ⅰ", 0));
+        tempRows.put("黄金Ⅱ", countMap.getOrDefault("黄金Ⅱ", 0));
+        tempRows.put("黄金Ⅲ", countMap.getOrDefault("黄金Ⅲ", 0));
+        tempRows.put("铁锭Ⅰ", countMap.getOrDefault("铁锭Ⅰ", 0));
+        tempRows.put("铁锭Ⅱ", countMap.getOrDefault("铁锭Ⅱ", 0));
+        tempRows.put("铁锭Ⅲ", countMap.getOrDefault("铁锭Ⅲ", 0));
+        tempRows.put("粗铜Ⅰ", countMap.getOrDefault("粗铜Ⅰ", 0));
+        tempRows.put("粗铜Ⅱ", countMap.getOrDefault("粗铜Ⅱ", 0));
+        tempRows.put("粗铜Ⅲ", countMap.getOrDefault("粗铜Ⅲ", 0));
+        tempRows.put("粗铜", countMap.getOrDefault("粗铜", 0));
+        //tempRows.put("未定级", countMap.getOrDefault("未定级", 0));
+        pvpRows = tempRows;
     }
 
     private static String getLevel(int point, int count) {

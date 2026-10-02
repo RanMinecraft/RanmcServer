@@ -6,7 +6,7 @@
 
     <groupId>cc.ranmc.server</groupId>
     <artifactId>RanmcServer</artifactId>
-    <version>Release-8.9</version>
+    <version>Release-8.10</version>
 
     <properties>
         <java.version>26</java.version>
@@ -51,6 +51,14 @@
                             <extraJars>
                                 <extraJar>${project.basedir}/../Ranmc.jar</extraJar>
                             </extraJars>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>cc.ranmc.server.Main</mainClass>
+                                    <manifestEntries>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

@@ -16,15 +16,15 @@ import static cc.ranmc.server.network.BroadcastHandler.broadcast;
 public class MinecraftUtil {
 
     @Getter
-    private static Map<String,Boolean> serverStatusMap = new TreeMap<>();
+    private static volatile Map<String,Boolean> serverStatusMap = new TreeMap<>();
     @Getter
-    private static Map<String,Long> serverLatencyMap = new TreeMap<>();
+    private static volatile Map<String,Long> serverLatencyMap = new TreeMap<>();
     private static final Map<String,String> serverSrvMap = new TreeMap<>();
     private static long recordId = 0;
     @Getter
-    private static long lastCheckTime = 0;
+    private static volatile long lastCheckTime = 0;
     @Getter
-    private static JsonObject onlineData = new JsonObject();
+    private static volatile JsonObject onlineData = new JsonObject();
     private static int offset = 0;
 
     public static void updateServerStatus() {
@@ -38,6 +38,7 @@ public class MinecraftUtil {
                     final boolean[] updateOnlineData = {false};
                     serverSrvMap.clear();
                     final JsonObject[] severData = new JsonObject[1];
+                    final JsonObject[] tempOnlineData = {null};
                     Map<String,Boolean> newServerStatusMap = new TreeMap<>();
                     Map<String,Long> newServerLatencyMap = new TreeMap<>();
                     JsonUtil.parse(body).getAsJsonArray("records").forEach(record -> {
@@ -63,14 +64,15 @@ public class MinecraftUtil {
                             if (online && !updateOnlineData[0]) {
                                 // 更新服务器在线信息
                                 updateOnlineData[0] = true;
-                                onlineData = new JsonObject();
+                                JsonObject temp = new JsonObject();
                                 String[] version = JsonUtil.getString(
                                         JsonUtil.getObject(severData[0], "version"), "name")
                                         .split(" ");
-                                onlineData.addProperty("version", version[version.length - 1]);
+                                temp.addProperty("version", version[version.length - 1]);
                                 JsonObject players = JsonUtil.getObject(severData[0], "players");
-                                onlineData.addProperty("online", JsonUtil.getInt(players, "online", 0));
-                                onlineData.addProperty("max", JsonUtil.getInt(players, "max", 0));
+                                temp.addProperty("online", JsonUtil.getInt(players, "online", 0));
+                                temp.addProperty("max", JsonUtil.getInt(players, "max", 0));
+                                tempOnlineData[0] = temp;
                             }
                         } else if (name.equals("_minecraft._tcp")) {
                             recordId = JsonUtil.getLong(json, "id");
@@ -86,9 +88,12 @@ public class MinecraftUtil {
                         modifyRecord(new ArrayList<>(serverSrvMap.values()).get(offset));
                     }
 
-                    lastCheckTime = System.currentTimeMillis();
                     serverStatusMap = newServerStatusMap;
                     serverLatencyMap = newServerLatencyMap;
+                    if (tempOnlineData[0] != null) {
+                        onlineData = tempOnlineData[0];
+                    }
+                    lastCheckTime = System.currentTimeMillis();
                 });
     }
 
