@@ -19,6 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +33,11 @@ import static cc.ranmc.server.constant.Data.LOG_SQL;
 import static cc.ranmc.server.util.ConfigUtil.getString;
 
 public class ChartHandler {
+    // TPS 图表固定为最近 24 小时，每 20 分钟一个点，共 72 个点
+    private static final int TPS_SLOT_MINUTES = 20;
+    private static final int TPS_POINT_COUNT = 72;
+    private static final DateTimeFormatter TPS_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TPS_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static long seasonLastUpdate = 0;
     private static volatile Map<String, Integer> seasonRows = new LinkedHashMap<>();
     private static long tpsLastUpdate = 0;
@@ -136,22 +145,70 @@ public class ChartHandler {
 
     public static void updateTpsData() {
         long now = System.currentTimeMillis();
-        if (tpsLastUpdate + (30 * 60 * 1000) > now) return;
+        if (tpsLastUpdate + (5 * 60 * 1000) > now) return;
         tpsLastUpdate = now;
+
+        // 以当前时刻向下取整到 20 分钟，作为最后一个时间槽
+        LocalDateTime nowTime = LocalDateTime.now();
+        LocalDateTime lastSlot = nowTime
+                .withMinute(nowTime.getMinute() / TPS_SLOT_MINUTES * TPS_SLOT_MINUTES)
+                .withSecond(0)
+                .withNano(0);
+        LocalDateTime firstSlot = lastSlot.minusMinutes((long) TPS_SLOT_MINUTES * (TPS_POINT_COUNT - 1));
+        LocalDateTime windowEnd = lastSlot.plusMinutes(TPS_SLOT_MINUTES);
+
+        // 多发一些原始记录，避免停机导致的记录缺失
         List<SQLRow> tpsList = LOG_SQL.selectList(SQLKey.TPS.toUpperCase(),
                 new SQLFilter()
                         .order("CAST(ID AS INT) DESC")
-                        .limit(68));
-        JsonArray tempRows = new JsonArray();
+                        .limit(TPS_POINT_COUNT * 3));
+
+        // 把落在同一时间槽内的记录累加，便于取平均
+        Map<LocalDateTime, double[]> slotSum = new HashMap<>();
+        Map<LocalDateTime, int[]> slotCount = new HashMap<>();
         for (SQLRow row : tpsList) {
+            LocalDateTime recordTime = parseRecordTime(row);
+            if (recordTime == null) continue;
+            if (recordTime.isBefore(firstSlot) || !recordTime.isBefore(windowEnd)) continue;
+            LocalDateTime slot = recordTime
+                    .withMinute(recordTime.getMinute() / TPS_SLOT_MINUTES * TPS_SLOT_MINUTES)
+                    .withSecond(0)
+                    .withNano(0);
+            double[] sum = slotSum.computeIfAbsent(slot, k -> new double[2]);
+            sum[0] += row.getInt(SQLKey.PLAYER, 0);
+            sum[1] += row.getDouble(SQLKey.TPS, 20d);
+            slotCount.computeIfAbsent(slot, k -> new int[1])[0]++;
+        }
+
+        // 按固定时间刻度输出，保持与旧接口一致的时间顺序（新 -> 旧）
+        JsonArray tempRows = new JsonArray();
+        for (int i = 0; i < TPS_POINT_COUNT; i++) {
+            LocalDateTime slot = lastSlot.minusMinutes((long) TPS_SLOT_MINUTES * i);
             JsonObject obj = new JsonObject();
-            obj.addProperty(SQLKey.DATE.toLowerCase(), row.getString(SQLKey.DATE));
-            obj.addProperty(SQLKey.TIME.toLowerCase(), row.getString(SQLKey.TIME));
-            obj.addProperty(SQLKey.PLAYER.toLowerCase(), row.getInt(SQLKey.PLAYER, 0));
-            obj.addProperty(SQLKey.TPS.toLowerCase(), row.getDouble(SQLKey.TPS, 20d));
+            obj.addProperty(SQLKey.DATE.toLowerCase(), slot.format(TPS_DATE_FORMAT));
+            obj.addProperty(SQLKey.TIME.toLowerCase(), slot.format(TPS_TIME_FORMAT));
+            double[] sum = slotSum.get(slot);
+            int count = sum == null ? 0 : slotCount.get(slot)[0];
+            if (count > 0) {
+                obj.addProperty(SQLKey.PLAYER.toLowerCase(), (int) Math.round(sum[0] / count));
+                obj.addProperty(SQLKey.TPS.toLowerCase(), sum[1] / count);
+            } else {
+                obj.addProperty(SQLKey.PLAYER.toLowerCase(), 0);
+                obj.addProperty(SQLKey.TPS.toLowerCase(), 0);
+            }
             tempRows.add(obj);
         }
         tpsRows = tempRows;
+    }
+
+    private static LocalDateTime parseRecordTime(SQLRow row) {
+        try {
+            LocalDate date = LocalDate.parse(row.getString(SQLKey.DATE));
+            LocalTime time = LocalTime.parse(row.getString(SQLKey.TIME));
+            return LocalDateTime.of(date, time);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static void updatePvpData() {
