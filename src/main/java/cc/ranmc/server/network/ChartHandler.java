@@ -33,9 +33,9 @@ import static cc.ranmc.server.constant.Data.LOG_SQL;
 import static cc.ranmc.server.util.ConfigUtil.getString;
 
 public class ChartHandler {
-    // TPS 图表固定为最近 24 小时，每 20 分钟一个点，共 72 个点
-    private static final int TPS_SLOT_MINUTES = 20;
-    private static final int TPS_POINT_COUNT = 72;
+    // TPS 图表固定为最近 24 小时，每 30 分钟一个点，共 48 个点
+    private static final int TPS_SLOT_MINUTES = 30;
+    private static final int TPS_POINT_COUNT = 48;
     private static final DateTimeFormatter TPS_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TPS_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static long seasonLastUpdate = 0;
@@ -184,11 +184,13 @@ public class ChartHandler {
         JsonArray tempRows = new JsonArray();
         for (int i = 0; i < TPS_POINT_COUNT; i++) {
             LocalDateTime slot = lastSlot.minusMinutes((long) TPS_SLOT_MINUTES * i);
+            double[] sum = slotSum.get(slot);
+            int count = sum == null ? 0 : slotCount.get(slot)[0];
+            // 当前时间所在的时间槽若还没有记录，则不返回最后一条
+            if (i == 0 && count == 0) continue;
             JsonObject obj = new JsonObject();
             obj.addProperty(SQLKey.DATE.toLowerCase(), slot.format(TPS_DATE_FORMAT));
             obj.addProperty(SQLKey.TIME.toLowerCase(), slot.format(TPS_TIME_FORMAT));
-            double[] sum = slotSum.get(slot);
-            int count = sum == null ? 0 : slotCount.get(slot)[0];
             if (count > 0) {
                 obj.addProperty(SQLKey.PLAYER.toLowerCase(), (int) Math.round(sum[0] / count));
                 obj.addProperty(SQLKey.TPS.toLowerCase(), sum[1] / count);
