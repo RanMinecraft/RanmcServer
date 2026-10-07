@@ -57,8 +57,8 @@ public class MinecraftUtil {
                             boolean online = obj != null;
                             newServerLatencyMap.put(serverName, online ? JsonUtil.getLong(obj, "latency", 0L) : 0);
                             newServerStatusMap.put(serverName, online);
-                            // 因为 樱花frp 无法被 mclist 解析
-                            if (!serverName.equals("b5.ranmc.cc") && !serverName.equals("b6.ranmc.cc")) {
+                            // 仅将 ping 通的线路纳入切换候选；樱花frp 无法被 mclist 解析，永不使用
+                            if (online && !serverName.equals("b5.ranmc.cc") && !serverName.equals("b6.ranmc.cc")) {
                                 serverSrvMap.put(serverName, srv);
                             }
                             if (online && !updateOnlineData[0]) {
